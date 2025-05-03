@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">ErgasiaAndroid</string>
-    <string name="payment_title">Πληρωμή στάθμευσης</string>
+    <string name="payment_title">Λεπτομέρειες Συναλλαγής</string>
+    <string name="amount">Ποσό Πληρωμής</string>
     <string name="card_number">Αριθμός Κάρτας</string>
     <string name="expiry_month">Μήνας</string>
     <string name="expiry_year">Έτος</string>
@@ -9,4 +10,5 @@
     <string name="hint_card_holder">Όνομα Κατόχου</string>
     <string name="pay">ΠΛΗΡΩΜΗ</string>
     <string name="cancel">ΑΚΥΡΩΣΗ</string>
+
 </resources>

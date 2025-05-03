@@ -3,18 +3,25 @@ package com.example.ergasiaandroid.Fragments;
 
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import com.example.ergasiaandroid.R;
 import com.google.android.material.textfield.TextInputEditText;
 
-    public class PaymentFragment extends Fragment {
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
+public class PaymentFragment extends Fragment {
 
 
         public PaymentFragment() {
@@ -31,6 +38,11 @@ import com.google.android.material.textfield.TextInputEditText;
         public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
             super.onViewCreated(view, savedInstanceState);
 
+            // Αλλάζει τον τίτλο στην ActionBar
+            if (getActivity() != null) {
+                ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("Πληρωμή στάθμευσης");
+            }
+
             TextInputEditText cardNumber = view.findViewById(R.id.cardNumber);
             TextInputEditText expiryMonth = view.findViewById(R.id.expiryMonth);
             TextInputEditText expiryYear = view.findViewById(R.id.expiryYearEdit);
@@ -38,6 +50,21 @@ import com.google.android.material.textfield.TextInputEditText;
             TextInputEditText cardHolder = view.findViewById(R.id.cardHolder);
             Button payButton = view.findViewById(R.id.payButton);
             Button cancelButton = view.findViewById(R.id.cancelButton);
+            TextView paymentAmount = view.findViewById(R.id.paymentAmount);
+
+
+            //Εμφανίζω τις Λεπτομέριες Συναλλαγής
+
+
+
+
+            //Εμφανίζω το συνολικο ποσό πληρωμής μαζι με το "Ποσό πληρωμής"
+            String label = getString(R.string.amount); // "Ποσό πληρωμής"
+            String amount = "3.75$"; // ή ό,τι άλλο δυναμικά
+            String fullText = label + "\n" + amount;
+            paymentAmount.setText(fullText);
+            paymentAmount.setGravity(Gravity.CENTER);  // Κεντράρει το κείμενο
+
 
             payButton.setOnClickListener(v -> {
                 // Έλεγχος πεδίων
@@ -61,5 +88,25 @@ import com.google.android.material.textfield.TextInputEditText;
                 cvv.setText("");
                 cardHolder.setText("");
             });
+
+
         }
+
+
+        //Συνάρτηση υπολογισμού κόστους
+        private double calculateCost(String startTimeStr, String endTimeStr, double costPerHour) {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+            LocalDateTime start = LocalDateTime.parse(startTimeStr, formatter);
+            LocalDateTime end = LocalDateTime.parse(endTimeStr, formatter);
+
+            Duration duration = Duration.between(start, end);
+            long minutes = duration.toMinutes();
+            double hours = minutes / 60.0;
+
+            return hours * costPerHour;
+        }
+
     }
+
+
