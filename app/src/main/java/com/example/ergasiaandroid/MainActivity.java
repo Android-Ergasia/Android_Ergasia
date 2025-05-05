@@ -15,11 +15,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        SQLiteConnection db = new SQLiteConnection(this); // ή requireContext() αν είσαι σε Fragment
 
-        String startTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date());
-        db.insertParkingSession("TEST1234", "12399", startTime, null, 0.0);
-        db.close();
 
 
         // Φορτώνει το PaymentFragment στο container

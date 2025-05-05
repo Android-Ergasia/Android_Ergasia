@@ -1,8 +1,6 @@
 
 package com.example.ergasiaandroid.Fragments;
 
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -18,9 +16,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
-import com.example.ergasiaandroid.ParkingContract;
 import com.example.ergasiaandroid.R;
-import com.example.ergasiaandroid.SQLiteConnection;
 import com.google.android.material.textfield.TextInputEditText;
 
 import java.text.SimpleDateFormat;
@@ -63,45 +59,45 @@ public class PaymentFragment extends Fragment {
             TextView parkingInfo = view.findViewById(R.id.parkingInfo);
 
 
-            //Εμφανίζω τις Λεπτομέριες Συναλλαγής και Ποσό Πληρωμής
-            SQLiteConnection db = new SQLiteConnection(requireContext());
-            Cursor cursor = db.getParkingSessionsByUser(null); // θα κάνουμε query χωρίς φίλτρο user αν είναι null
+//            //Εμφανίζω τις Λεπτομέριες Συναλλαγής και Ποσό Πληρωμής
+//            SQLiteConnection db = new SQLiteConnection(requireContext());
+//            Cursor cursor = db.getParkingSessionsByUser(null); // θα κάνουμε query χωρίς φίλτρο user αν είναι null
+//
+//            String location = "Άγνωστη θέση";
+//            String startTime = null;
+//            String userId = "Άγνωστη πινακίδα";
+//            String endTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date());
+//            double cost = 0;
+//            long minutes = 0;
+//
+//            if (cursor.moveToFirst()) {
+//                do {
+//                    String end = cursor.getString(cursor.getColumnIndexOrThrow(ParkingContract.ParkingEntry.COLUMN_END_TIME));
+//                    if (end == null) {
+//                        userId = cursor.getString(cursor.getColumnIndexOrThrow(ParkingContract.ParkingEntry.COLUMN_USER_ID));
+//                        location = cursor.getString(cursor.getColumnIndexOrThrow(ParkingContract.ParkingEntry.COLUMN_LOCATION));
+//                        startTime = cursor.getString(cursor.getColumnIndexOrThrow(ParkingContract.ParkingEntry.COLUMN_START_TIME));
+//                        break;
+//                    }
+//                } while (cursor.moveToNext());
+//            }
+//            cursor.close();
+//            db.close();
 
-            String location = "Άγνωστη θέση";
-            String startTime = null;
-            String userId = "Άγνωστη πινακίδα";
-            String endTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date());
-            double cost = 0;
-            long minutes = 0;
-
-            if (cursor.moveToFirst()) {
-                do {
-                    String end = cursor.getString(cursor.getColumnIndexOrThrow(ParkingContract.ParkingEntry.COLUMN_END_TIME));
-                    if (end == null) {
-                        userId = cursor.getString(cursor.getColumnIndexOrThrow(ParkingContract.ParkingEntry.COLUMN_USER_ID));
-                        location = cursor.getString(cursor.getColumnIndexOrThrow(ParkingContract.ParkingEntry.COLUMN_LOCATION));
-                        startTime = cursor.getString(cursor.getColumnIndexOrThrow(ParkingContract.ParkingEntry.COLUMN_START_TIME));
-                        break;
-                    }
-                } while (cursor.moveToNext());
-            }
-            cursor.close();
-            db.close();
-
-            if (startTime != null) {
-                cost = calculateCost(startTime, endTime, 1.5);
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-                minutes = Duration.between(LocalDateTime.parse(startTime, formatter),
-                        LocalDateTime.parse(endTime, formatter)).toMinutes();
-
-                String fullText = getString(R.string.amount) + "\n" + String.format(Locale.getDefault(), "%.2f €", cost);
-                paymentAmount.setText(fullText);
-                paymentAmount.setGravity(Gravity.CENTER);
-
-                String detailText = "Πληρωμή στάθμευσης - Χονολουλού: " + userId + " • " + location + " • " + minutes + "'";
-                parkingInfo.setText(detailText);
-                parkingInfo.setGravity(Gravity.CENTER);
-            }
+//            if (startTime != null) {
+//                cost = calculateCost(startTime, endTime, 1.5);
+//                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+//                minutes = Duration.between(LocalDateTime.parse(startTime, formatter),
+//                        LocalDateTime.parse(endTime, formatter)).toMinutes();
+//
+//                String fullText = getString(R.string.amount) + "\n" + String.format(Locale.getDefault(), "%.2f €", cost);
+//                paymentAmount.setText(fullText);
+//                paymentAmount.setGravity(Gravity.CENTER);
+//
+//                String detailText = "Πληρωμή στάθμευσης - Χονολουλού: " + userId + " • " + location + " • " + minutes + "'";
+//                parkingInfo.setText(detailText);
+//                parkingInfo.setGravity(Gravity.CENTER);
+//            }
 
 
 
@@ -128,8 +124,8 @@ public class PaymentFragment extends Fragment {
 
 
 
-            final double finalCost = cost;
-            final String finalUserId = userId;
+//            final double finalCost = cost;
+//            final String finalUserId = userId;
             payButton.setOnClickListener(v -> {
                 // Έλεγχος πεδίων
                 if (TextUtils.isEmpty(cardNumber.getText()) ||
@@ -144,9 +140,6 @@ public class PaymentFragment extends Fragment {
                     String finalEndTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date());
 
 
-                    SQLiteConnection dbUpdate = new SQLiteConnection(requireContext());
-                    dbUpdate.updateLatestParkingSession(finalUserId, finalEndTime, finalCost); // το cost το έχεις ήδη υπολογίσει
-                    dbUpdate.close();
 
                     Toast.makeText(getContext(), "Η πληρωμή ολοκληρώθηκε!", Toast.LENGTH_LONG).show();
                 }
