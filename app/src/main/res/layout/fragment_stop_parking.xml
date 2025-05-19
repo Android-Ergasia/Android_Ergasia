@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="24dp"
+    android:background="@android:color/white">
+
+    <TextView
+        android:id="@+id/text_sector"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Τομέας:"
+        android:textSize="16sp"
+        android:layout_marginBottom="8dp" />
+
+    <TextView
+        android:id="@+id/text_start_time"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Ώρα Έναρξης:"
+        android:textSize="16sp"
+        android:layout_marginBottom="8dp" />
+
+    <TextView
+        android:id="@+id/text_plate"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Πινακίδα:"
+        android:textSize="16sp"
+        android:layout_marginBottom="8dp" />
+
+    <TextView
+        android:id="@+id/text_email"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Email:"
+        android:textSize="16sp"
+        android:layout_marginBottom="24dp" />
+
+    <Button
+        android:id="@+id/button_finish"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Ολοκλήρωση στάθμευσης και πληρωμή"
+        android:backgroundTint="@color/design_default_color_primary"
+        android:textColor="@android:color/white" />
+
+</LinearLayout>

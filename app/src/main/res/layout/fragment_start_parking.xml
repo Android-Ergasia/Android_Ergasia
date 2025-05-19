@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+android:id="@+id/start_parking_layout"
+android:layout_width="match_parent"
+android:layout_height="match_parent"
+android:orientation="vertical"
+android:padding="24dp"
+android:background="@android:color/white">
+
+<!-- Τομέας -->
+<TextView
+    android:id="@+id/text_sector"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:text="Τομέας: A"
+    android:textSize="16sp"
+    android:textStyle="normal"
+    android:layout_marginBottom="16dp" />
+
+<!-- Ώρα έναρξης -->
+<TextView
+    android:id="@+id/text_start_time"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:text="Ώρα έναρξης: 12:00"
+    android:textSize="16sp"
+    android:textStyle="normal"
+    android:layout_marginBottom="16dp" />
+
+<!-- Πινακίδα -->
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:layout_marginBottom="16dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Πινακίδα:"
+        android:textSize="16sp"
+        android:textStyle="normal"
+        android:layout_gravity="center_vertical" />
+
+    <EditText
+        android:id="@+id/edit_plate"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:layout_marginStart="12dp"
+        android:hint="π.χ. ΙΚΑ1234"
+        android:inputType="textCapCharacters"
+        android:backgroundTint="@android:color/darker_gray"
+        android:textColor="@android:color/black"
+        android:focusableInTouchMode="true" />
+
+</LinearLayout>
+
+<!-- Email -->
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:layout_marginBottom="24dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Email:"
+        android:textSize="16sp"
+        android:textStyle="normal"
+        android:layout_gravity="center_vertical" />
+
+    <EditText
+        android:id="@+id/edit_email"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:layout_marginStart="12dp"
+        android:hint="π.χ. user@example.com"
+        android:inputType="textEmailAddress"
+        android:backgroundTint="@android:color/darker_gray"
+        android:textColor="@android:color/black"
+        android:focusableInTouchMode="true" />
+
+</LinearLayout>
+
+<!-- Κουμπί -->
+<Button
+    android:id="@+id/button_start"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:text="Έναρξη Στάθμευσης"
+    android:backgroundTint="@color/design_default_color_primary"
+    android:textColor="@android:color/white" />
+</LinearLayout>
