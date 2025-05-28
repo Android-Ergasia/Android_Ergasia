@@ -194,7 +194,7 @@ public class MapsActivity  extends AppCompatActivity implements OnMapReadyCallba
             return true;
         });
     }
-    private void toggleMainMapViews(boolean show) {
+    public void toggleMainMapViews(boolean show) {
         int visibility = show ? View.VISIBLE : View.GONE;
         findViewById(R.id.searchBar).setVisibility(visibility);
         findViewById(R.id.availabilityFilter).setVisibility(visibility);

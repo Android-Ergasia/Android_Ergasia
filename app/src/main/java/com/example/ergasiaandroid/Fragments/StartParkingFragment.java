@@ -18,6 +18,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
+import com.example.ergasiaandroid.MapsActivity; // <--- Πρόσθεσέ το!
 import com.example.ergasiaandroid.R;
 import com.example.ergasiaandroid.SpotChoiceInfoBottomSheet;
 
@@ -68,8 +69,10 @@ public class StartParkingFragment extends Fragment {
 
         if (getActivity() != null) {
             AppCompatActivity activity = (AppCompatActivity) getActivity();
-            activity.getSupportActionBar().setTitle("Έναρξη Στάθμευσης");
-            activity.getSupportActionBar().setDisplayHomeAsUpEnabled(true); // Back arrow
+            if (activity.getSupportActionBar() != null) {
+                activity.getSupportActionBar().setTitle("Έναρξη Στάθμευσης");
+                activity.getSupportActionBar().setDisplayHomeAsUpEnabled(true); // Back arrow
+            }
         }
 
         if (getArguments() != null) {
@@ -128,6 +131,12 @@ public class StartParkingFragment extends Fragment {
                 View fragmentContainer = getActivity().findViewById(R.id.fragment_container);
                 fragmentContainer.setVisibility(View.GONE);
 
+                // >>>>>> ΝΕΑ ΠΡΟΣΘΗΚΗ: Επανεμφάνισε τα map views
+                if (getActivity() instanceof MapsActivity) {
+                    ((MapsActivity) getActivity()).toggleMainMapViews(true);
+                }
+                // <<<<<<
+
                 getParentFragmentManager().popBackStack();
             }
             return true;
@@ -139,6 +148,12 @@ public class StartParkingFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         if (getActivity() != null) {
+            // >>>>>> ΝΕΑ ΠΡΟΣΘΗΚΗ: Επανεμφάνισε τα map views
+            if (getActivity() instanceof MapsActivity) {
+                ((MapsActivity) getActivity()).toggleMainMapViews(true);
+            }
+            // <<<<<<
+
             View mapView = getActivity().findViewById(R.id.map);
             mapView.setVisibility(View.VISIBLE);
 
