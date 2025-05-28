@@ -2,6 +2,8 @@ package com.example.ergasiaandroid;
 
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
+import android.location.Address;
+import android.location.Geocoder;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -31,6 +33,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {
 
@@ -44,28 +47,49 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         String address;
         String pricePerHour;
 
-        ParkingSpot(String name, double lat, double lng, boolean isAvailable, String address, String pricePerHour) {
+        ParkingSpot(String name, double lat, double lng, boolean isAvailable, String pricePerHour, AppCompatActivity context) {
             this.name = name;
             this.lat = lat;
             this.lng = lng;
             this.isAvailable = isAvailable;
-            this.address = address;
             this.pricePerHour = pricePerHour;
+            this.address = getAddressFromLocation(context, lat, lng);
+        }
+
+        private String getAddressFromLocation(AppCompatActivity context, double latitude, double longitude) {
+            try {
+                Geocoder geocoder = new Geocoder(context, Locale.getDefault());
+                List<Address> addresses = geocoder.getFromLocation(latitude, longitude, 1);
+                if (addresses != null && !addresses.isEmpty()) {
+                    Address addressObj = addresses.get(0);
+                    String thoroughfare = addressObj.getThoroughfare(); // οδός
+                    String featureName = addressObj.getFeatureName();   // αριθμός
+                    if (thoroughfare != null && featureName != null) {
+                        return thoroughfare + " " + featureName;
+                    } else if (addressObj.getAddressLine(0) != null) {
+                        return addressObj.getAddressLine(0);
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return "Άγνωστη διεύθυνση";
         }
     }
 
-    private List<ParkingSpot> getAllSpots() {
+    // Δημιουργία όλων των θέσεων (χωρίς fixed address πλέον)
+    private List<ParkingSpot> createAllSpots() {
         return Arrays.asList(
-                new ParkingSpot("Parking 1", 21.3060, -157.8570, true, "123 Aloha St", "2€/ώρα"),
-                new ParkingSpot("Parking 2", 21.3072, -157.8585, false, "123 Aloha St", "2€/ώρα"),
-                new ParkingSpot("Parking 3", 21.3081, -157.8591, true, "123 Aloha St", "2€/ώρα"),
-                new ParkingSpot("Parking 4", 21.3065, -157.8560, false, "123 Aloha St", "2€/ώρα"),
-                new ParkingSpot("Parking 5", 21.3078, -157.8602, true, "123 Aloha St", "2€/ώρα"),
-                new ParkingSpot("Parking 6", 21.3059, -157.8548, false, "123 Aloha St", "2€/ώρα"),
-                new ParkingSpot("Parking 7", 21.3092, -157.8579, true, "123 Aloha St", "2€/ώρα"),
-                new ParkingSpot("Parking 8", 21.3080, -157.8556, false, "123 Aloha St", "2€/ώρα"),
-                new ParkingSpot("Parking 9", 21.3067, -157.8537, true, "123 Aloha St", "2€/ώρα"),
-                new ParkingSpot("Parking 10", 21.3055, -157.8582, true, "123 Aloha St", "2€/ώρα")
+                new ParkingSpot("Parking 1", 21.3060, -157.8570, true, "2€/ώρα", this),
+                new ParkingSpot("Parking 2", 21.3072, -157.8585, false, "2€/ώρα", this),
+                new ParkingSpot("Parking 3", 21.3081, -157.8591, true, "2€/ώρα", this),
+                new ParkingSpot("Parking 4", 21.3065, -157.8560, false, "2€/ώρα", this),
+                new ParkingSpot("Parking 5", 21.3078, -157.8602, true, "2€/ώρα", this),
+                new ParkingSpot("Parking 6", 21.3059, -157.8548, false, "2€/ώρα", this),
+                new ParkingSpot("Parking 7", 21.3092, -157.8579, true, "2€/ώρα", this),
+                new ParkingSpot("Parking 8", 21.3080, -157.8556, false, "2€/ώρα", this),
+                new ParkingSpot("Parking 9", 21.3067, -157.8537, true, "2€/ώρα", this),
+                new ParkingSpot("Parking 10", 21.3055, -157.8582, true, "2€/ώρα", this)
         );
     }
 
@@ -103,7 +127,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
 
-        // Απόκρυψη πληκτρολογίου στην εκκίνηση
         getWindow().setSoftInputMode(android.view.WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -114,7 +137,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-        allSpots = getAllSpots();
+        allSpots = createAllSpots();
 
         LatLng honolulu = new LatLng(21.3069, -157.8583);
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(honolulu, 15));
@@ -170,6 +193,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(loc, 17));
         });
 
+        // ΕΔΩ η σωστή χρήση newInstance:
         mMap.setOnMarkerClickListener(marker -> {
             String title = marker.getTitle();
             ParkingSpot matchedSpot = null;
@@ -181,12 +205,17 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
 
             if (matchedSpot != null) {
-                SpotChoiceInfoBottomSheet bottomSheet = SpotChoiceInfoBottomSheet.newInstance(
-                        matchedSpot.address,
-                        matchedSpot.name,
-                        matchedSpot.pricePerHour
-                );
-                bottomSheet.show(getSupportFragmentManager(), "SpotChoiceInfoBottomSheet");
+                if (!matchedSpot.isAvailable) {
+                    Toast.makeText(this, "Η θέση \"" + matchedSpot.name + "\" δεν είναι διαθέσιμη αυτή τη στιγμή.", Toast.LENGTH_LONG).show();
+                } else {
+                    // Περνάμε address, spotName και price!
+                    SpotChoiceInfoBottomSheet bottomSheet = SpotChoiceInfoBottomSheet.newInstance(
+                            matchedSpot.address,
+                            matchedSpot.name,          // <<<<<< Όνομα parking!
+                            matchedSpot.pricePerHour
+                    );
+                    bottomSheet.show(getSupportFragmentManager(), "SpotChoiceInfoBottomSheet");
+                }
             }
             return true;
         });

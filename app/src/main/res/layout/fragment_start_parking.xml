@@ -7,12 +7,22 @@
     android:padding="24dp"
     android:background="@android:color/white">
 
-    <!-- Τομέας -->
+    <!-- Θέση -->
     <TextView
         android:id="@+id/text_sector"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Τομέας: A"
+        android:text="Θέση: Parking 1"
+        android:textSize="16sp"
+        android:textStyle="normal"
+        android:layout_marginBottom="8dp" />
+
+    <!-- Διεύθυνση -->
+    <TextView
+        android:id="@+id/text_address"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Διεύθυνση: "
         android:textSize="16sp"
         android:textStyle="normal"
         android:layout_marginBottom="16dp" />

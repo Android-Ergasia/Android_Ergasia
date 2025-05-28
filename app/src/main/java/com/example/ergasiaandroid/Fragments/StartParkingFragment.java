@@ -29,16 +29,16 @@ import java.util.Locale;
 public class StartParkingFragment extends Fragment {
 
     private EditText editPlate, editEmail;
-    private TextView textSector, textStartTime;
-    private String sector;
-    private String address;
+    private TextView textSector, textAddress, textStartTime;
+    private String sector;    // π.χ. "Parking 3"
+    private String address;   // π.χ. "Panepistimiou 1"
     private String price;
 
     public static StartParkingFragment newInstance(String sector, String address, String price) {
         StartParkingFragment fragment = new StartParkingFragment();
         Bundle args = new Bundle();
-        args.putString("spot_number", sector);
-        args.putString("spot_address", address);
+        args.putString("spot_number", sector);      // Θέση
+        args.putString("spot_address", address);    // Διεύθυνση
         args.putString("spot_price", price);
         fragment.setArguments(args);
         return fragment;
@@ -49,7 +49,7 @@ public class StartParkingFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        setHasOptionsMenu(true); // Enable options menu for back arrow
+        setHasOptionsMenu(true);
         return inflater.inflate(R.layout.fragment_start_parking, container, false);
     }
 
@@ -60,6 +60,7 @@ public class StartParkingFragment extends Fragment {
         editPlate = view.findViewById(R.id.edit_plate);
         editEmail = view.findViewById(R.id.edit_email);
         textSector = view.findViewById(R.id.text_sector);
+        textAddress = view.findViewById(R.id.text_address);
         textStartTime = view.findViewById(R.id.text_start_time);
         Button startButton = view.findViewById(R.id.button_start);
 
@@ -74,14 +75,15 @@ public class StartParkingFragment extends Fragment {
         }
 
         if (getArguments() != null) {
-            sector = getArguments().getString("spot_number", "Άγνωστος");
+            sector = getArguments().getString("spot_number", "Άγνωστο");
             address = getArguments().getString("spot_address", "Άγνωστη διεύθυνση");
-            price = getArguments().getString("spot_price", "1.5"); // default 1.5 euro/hour if empty
+            price = getArguments().getString("spot_price", "1.5");
         }
 
         String currentTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date());
 
-        textSector.setText("Τομέας: " + sector);
+        textSector.setText("Θέση: " + sector);
+        textAddress.setText("Διεύθυνση: " + address);
         textStartTime.setText("Ώρα έναρξης: " + currentTime);
 
         startButton.setOnClickListener(v -> {
@@ -101,15 +103,19 @@ public class StartParkingFragment extends Fragment {
             InputMethodManager imm = (InputMethodManager) requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
 
-            // === Βελτιωμένο extraction ===
             String priceNumeric = price.replaceAll(",", ".").replaceAll("[^0-9.]", "");
             if (priceNumeric.isEmpty()) priceNumeric = "1.5";
             if (priceNumeric.endsWith(".")) priceNumeric = priceNumeric.substring(0, priceNumeric.length() - 1);
 
-            // Προαιρετικά: δες τι στέλνεις (σβήσ' το αν δεν το θες)
-            // Toast.makeText(getContext(), "Τιμή που στέλνω: " + priceNumeric, Toast.LENGTH_SHORT).show();
-
-            StopParkingFragment stopFragment = StopParkingFragment.newInstance(sector, currentTime, plate, email, priceNumeric);
+            // === Σωστή κλήση με θέση + διεύθυνση ===
+            StopParkingFragment stopFragment = StopParkingFragment.newInstance(
+                    sector,     // θέλεις να εμφανίζει το "Parking 3" κλπ
+                    address,    // διεύθυνση
+                    currentTime,
+                    plate,
+                    email,
+                    priceNumeric
+            );
             getParentFragmentManager()
                     .beginTransaction()
                     .replace(R.id.fragment_container, stopFragment)
@@ -126,10 +132,10 @@ public class StartParkingFragment extends Fragment {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
             if (getActivity() != null) {
+                // Εδώ περνάμε ξανά και τη θέση (sector) αν το θες, ή άφησέ το μόνο address+price
                 SpotChoiceInfoBottomSheet bottomSheet = SpotChoiceInfoBottomSheet.newInstance(address, sector, price);
                 bottomSheet.show(getParentFragmentManager(), "spot_choice_info");
 
-                // Επαναφορά map & controls ΟΤΑΝ επιστρέφουμε στον χάρτη
                 View mapView = getActivity().findViewById(R.id.map);
                 mapView.setVisibility(View.VISIBLE);
 
@@ -147,7 +153,6 @@ public class StartParkingFragment extends Fragment {
         return super.onOptionsItemSelected(item);
     }
 
-    // Δεν διαχειριζόμαστε visibility εδώ
     @Override
     public void onDestroyView() {
         super.onDestroyView();

@@ -6,11 +6,21 @@
     android:padding="24dp"
     android:background="@android:color/white">
 
+    <!-- Θέση (π.χ. Parking 1) -->
     <TextView
         android:id="@+id/text_sector"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Τομέας:"
+        android:text="Θέση:"
+        android:textSize="16sp"
+        android:layout_marginBottom="8dp" />
+
+    <!-- Διεύθυνση -->
+    <TextView
+        android:id="@+id/text_address"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Διεύθυνση:"
         android:textSize="16sp"
         android:layout_marginBottom="8dp" />
 

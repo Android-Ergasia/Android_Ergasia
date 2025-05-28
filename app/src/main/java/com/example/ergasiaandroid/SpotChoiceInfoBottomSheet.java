@@ -16,14 +16,15 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 public class SpotChoiceInfoBottomSheet extends BottomSheetDialogFragment {
 
     private String address;
-    private String spotNumber;
     private String pricePerHour;
+    private String spotName;
 
-    public static SpotChoiceInfoBottomSheet newInstance(String address, String spotNumber, String pricePerHour) {
+    // Περνάμε ΚΑΙ το spotName πλέον!
+    public static SpotChoiceInfoBottomSheet newInstance(String address, String spotName, String pricePerHour) {
         SpotChoiceInfoBottomSheet fragment = new SpotChoiceInfoBottomSheet();
         Bundle args = new Bundle();
         args.putString("address", address);
-        args.putString("spot_number", spotNumber);
+        args.putString("spot_name", spotName);
         args.putString("price_per_hour", pricePerHour);
         fragment.setArguments(args);
         return fragment;
@@ -37,26 +38,25 @@ public class SpotChoiceInfoBottomSheet extends BottomSheetDialogFragment {
 
         if (getArguments() != null) {
             address = getArguments().getString("address");
-            spotNumber = getArguments().getString("spot_number");
             pricePerHour = getArguments().getString("price_per_hour");
+            spotName = getArguments().getString("spot_name");
         }
 
         TextView addressText = view.findViewById(R.id.text_address);
-        TextView spotNumberText = view.findViewById(R.id.text_spot_number);
         TextView priceText = view.findViewById(R.id.text_price_per_hour);
+        TextView spotNumberText = view.findViewById(R.id.text_spot_number);
         Button startButton = view.findViewById(R.id.button_start_parking);
 
         addressText.setText("Διεύθυνση: " + address);
-        spotNumberText.setText("Αριθμός Θέσης: " + spotNumber);
         priceText.setText("Τιμή/ώρα: " + pricePerHour);
+        spotNumberText.setText("Θέση: " + spotName);
 
         startButton.setOnClickListener(v -> {
             if (getActivity() != null) {
-                // >>>>>>> ΝΕΑ ΠΡΟΣΘΗΚΗ: Κρύψε όλα τα views του MapActivity
+                // Κρύψε όλα τα views του MapActivity
                 if (getActivity() instanceof MapsActivity) {
                     ((MapsActivity) getActivity()).toggleMainMapViews(false);
                 }
-                // <<<<<<<
 
                 // Κάνε ορατό το fragment_container
                 View fragmentContainer = getActivity().findViewById(R.id.fragment_container);
@@ -66,8 +66,8 @@ public class SpotChoiceInfoBottomSheet extends BottomSheetDialogFragment {
                 View mapView = getActivity().findViewById(R.id.map);
                 mapView.setVisibility(View.GONE);
 
-                // Φόρτωσε το StartParkingFragment
-                StartParkingFragment fragment = StartParkingFragment.newInstance(spotNumber, address, pricePerHour);
+                // Περνάμε ως sector το spotName, ως address τη διεύθυνση (και την τιμή)
+                StartParkingFragment fragment = StartParkingFragment.newInstance(spotName, address, pricePerHour);
                 getParentFragmentManager()
                         .beginTransaction()
                         .replace(R.id.fragment_container, fragment)
@@ -77,7 +77,6 @@ public class SpotChoiceInfoBottomSheet extends BottomSheetDialogFragment {
                 dismiss();
             }
         });
-
 
         return view;
     }

@@ -1,8 +1,8 @@
 package com.example.ergasiaandroid.Fragments;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.content.SharedPreferences;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -24,7 +24,7 @@ import java.time.format.DateTimeFormatter;
 
 public class StopParkingFragment extends Fragment {
 
-    private String sector, startTime, plate, email;
+    private String sector, address, startTime, plate, email;
     private double pricePerHour;
     private TextView paymentAmount;
     private TextView walletBalanceView;
@@ -32,10 +32,12 @@ public class StopParkingFragment extends Fragment {
     private double totalCost;
     private double walletBalance;
 
-    public static StopParkingFragment newInstance(String sector, String startTime, String plate, String email, String pricePerHour) {
+    // Περνάμε και address!
+    public static StopParkingFragment newInstance(String sector, String address, String startTime, String plate, String email, String pricePerHour) {
         StopParkingFragment fragment = new StopParkingFragment();
         Bundle args = new Bundle();
         args.putString("sector", sector);
+        args.putString("address", address);
         args.putString("start_time", startTime);
         args.putString("plate", plate);
         args.putString("email", email);
@@ -64,6 +66,7 @@ public class StopParkingFragment extends Fragment {
 
         if (getArguments() != null) {
             sector = getArguments().getString("sector");
+            address = getArguments().getString("address");
             startTime = getArguments().getString("start_time");
             plate = getArguments().getString("plate");
             email = getArguments().getString("email");
@@ -76,16 +79,15 @@ public class StopParkingFragment extends Fragment {
         }
 
         TextView textSector = view.findViewById(R.id.text_sector);
+        TextView textAddress = view.findViewById(R.id.text_address);
         TextView textStartTime = view.findViewById(R.id.text_start_time);
         TextView textPlate = view.findViewById(R.id.text_plate);
         TextView textEmail = view.findViewById(R.id.text_email);
         paymentAmount = view.findViewById(R.id.text_payment_amount);
         Button finishButton = view.findViewById(R.id.button_finish);
-
         Button payWithCard = view.findViewById(R.id.button_pay_with_card);
         Button payWithWallet = view.findViewById(R.id.button_pay_with_wallet);
 
-        // Προσθέτουμε το TextView για το υπόλοιπο wallet
         walletBalanceView = view.findViewById(R.id.text_wallet_balance);
         walletBalanceView.setVisibility(View.GONE);
 
@@ -93,7 +95,8 @@ public class StopParkingFragment extends Fragment {
         payWithWallet.setVisibility(View.GONE);
         paymentAmount.setVisibility(View.GONE);
 
-        textSector.setText("Τομέας: " + sector);
+        textSector.setText("Θέση: " + sector);
+        textAddress.setText("Διεύθυνση: " + address);
         textStartTime.setText("Ώρα Έναρξης: " + startTime);
         textPlate.setText("Πινακίδα: " + plate);
         textEmail.setText("Email: " + email);
@@ -116,6 +119,7 @@ public class StopParkingFragment extends Fragment {
         });
 
         payWithCard.setOnClickListener(v -> {
+            // Μπορείς να προσθέσεις το ποσό στα arguments αν θέλεις
             PaymentFragment paymentFragment = PaymentFragment.newInstance(sector, startTime, plate, email /*, String.valueOf(totalCost)*/);
             requireActivity().getSupportFragmentManager()
                     .beginTransaction()
@@ -129,8 +133,7 @@ public class StopParkingFragment extends Fragment {
             if (walletBalance >= totalCost) {
                 setWalletBalance(walletBalance - totalCost);
                 Toast.makeText(getContext(), "Πληρωμή με wallet ολοκληρώθηκε επιτυχώς!", Toast.LENGTH_LONG).show();
-                // Μπορείς να κάνεις redirect κάπου εδώ αν θέλεις π.χ. requireActivity().getSupportFragmentManager().popBackStack();
-                // Για demo: Ενημέρωση υπολοίπου στην οθόνη
+                // Ενημέρωση υπολοίπου στην οθόνη
                 walletBalanceView.setText(String.format("Υπόλοιπο Wallet: %.2f €", walletBalance - totalCost));
                 payWithCard.setEnabled(false);
                 payWithWallet.setEnabled(false);
