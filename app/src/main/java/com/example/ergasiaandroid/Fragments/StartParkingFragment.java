@@ -76,7 +76,7 @@ public class StartParkingFragment extends Fragment {
         if (getArguments() != null) {
             sector = getArguments().getString("spot_number", "Άγνωστος");
             address = getArguments().getString("spot_address", "Άγνωστη διεύθυνση");
-            price = getArguments().getString("spot_price", "Άγνωστη τιμή");
+            price = getArguments().getString("spot_price", "1.5"); // default 1.5 euro/hour if empty
         }
 
         String currentTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date());
@@ -101,8 +101,15 @@ public class StartParkingFragment extends Fragment {
             InputMethodManager imm = (InputMethodManager) requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
 
-            // Περνάει στο StopParkingFragment
-            StopParkingFragment stopFragment = StopParkingFragment.newInstance(sector, currentTime, plate, email, price);
+            // === Βελτιωμένο extraction ===
+            String priceNumeric = price.replaceAll(",", ".").replaceAll("[^0-9.]", "");
+            if (priceNumeric.isEmpty()) priceNumeric = "1.5";
+            if (priceNumeric.endsWith(".")) priceNumeric = priceNumeric.substring(0, priceNumeric.length() - 1);
+
+            // Προαιρετικά: δες τι στέλνεις (σβήσ' το αν δεν το θες)
+            // Toast.makeText(getContext(), "Τιμή που στέλνω: " + priceNumeric, Toast.LENGTH_SHORT).show();
+
+            StopParkingFragment stopFragment = StopParkingFragment.newInstance(sector, currentTime, plate, email, priceNumeric);
             getParentFragmentManager()
                     .beginTransaction()
                     .replace(R.id.fragment_container, stopFragment)
@@ -140,7 +147,7 @@ public class StartParkingFragment extends Fragment {
         return super.onOptionsItemSelected(item);
     }
 
-    // Προσοχή! ΔΕΝ διαχειρίζομαι το visibility εδώ!
+    // Δεν διαχειριζόμαστε visibility εδώ
     @Override
     public void onDestroyView() {
         super.onDestroyView();

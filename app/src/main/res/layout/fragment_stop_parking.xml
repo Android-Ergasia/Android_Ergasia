@@ -38,7 +38,18 @@
         android:textSize="16sp"
         android:layout_marginBottom="16dp" />
 
-    <!-- Νέο TextView για το ποσό πληρωμής -->
+    <!-- Το νέο TextView για το wallet balance -->
+    <TextView
+        android:id="@+id/text_wallet_balance"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Υπόλοιπο Wallet: 0.00 €"
+        android:textSize="16sp"
+        android:textColor="@android:color/holo_green_dark"
+        android:layout_marginBottom="8dp"
+        android:gravity="center"
+        android:visibility="gone" />
+
     <TextView
         android:id="@+id/text_payment_amount"
         android:layout_width="match_parent"
@@ -47,23 +58,36 @@
         android:textSize="18sp"
         android:textStyle="bold"
         android:layout_marginBottom="24dp"
-        android:gravity="center" />
+        android:gravity="center"
+        android:visibility="gone" />
 
     <Button
         android:id="@+id/button_finish"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Ολοκλήρωση στάθμευσης και πληρωμή"
+        android:text="Ολοκλήρωση στάθμευσης"
         android:backgroundTint="@color/design_default_color_primary"
-        android:textColor="@android:color/white" />
+        android:textColor="@android:color/white"
+        android:layout_marginTop="8dp"/>
 
     <Button
-        android:id="@+id/button_top_up"
+        android:id="@+id/button_pay_with_card"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Φόρτιση Υπολοίπου"
-        android:layout_marginTop="16dp"
+        android:text="Πληρωμή με Κάρτα"
         android:backgroundTint="@color/design_default_color_secondary"
-        android:textColor="@android:color/white" />
+        android:textColor="@android:color/white"
+        android:layout_marginTop="16dp"
+        android:visibility="gone" />
+
+    <Button
+        android:id="@+id/button_pay_with_wallet"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Πληρωμή μέσω Wallet"
+        android:backgroundTint="@color/design_default_color_secondary_variant"
+        android:textColor="@android:color/white"
+        android:layout_marginTop="8dp"
+        android:visibility="gone" />
 
 </LinearLayout>
