@@ -1,7 +1,6 @@
 package com.example.ergasiaandroid;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.FragmentActivity;
 import android.os.Bundle;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -14,17 +13,17 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.view.KeyEvent;
 import android.view.View;
-import android.view.inputmethod.EditorInfo;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.TextView;
+import android.view.KeyEvent;
+import android.view.inputmethod.EditorInfo;
 
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -194,6 +193,8 @@ public class MapsActivity  extends AppCompatActivity implements OnMapReadyCallba
             return true;
         });
     }
+
+    // Χρησιμοποιείται ΜΟΝΟ όταν θες να κρύψεις ή να εμφανίσεις ΟΛΑ τα main views του MapActivity
     public void toggleMainMapViews(boolean show) {
         int visibility = show ? View.VISIBLE : View.GONE;
         findViewById(R.id.searchBar).setVisibility(visibility);
@@ -203,6 +204,4 @@ public class MapsActivity  extends AppCompatActivity implements OnMapReadyCallba
         findViewById(R.id.btnZoomIn).setVisibility(visibility);
         findViewById(R.id.btnZoomOut).setVisibility(visibility);
     }
-
-
 }

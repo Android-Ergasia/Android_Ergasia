@@ -18,7 +18,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
-import com.example.ergasiaandroid.MapsActivity; // <--- Πρόσθεσέ το!
+import com.example.ergasiaandroid.MapsActivity;
 import com.example.ergasiaandroid.R;
 import com.example.ergasiaandroid.SpotChoiceInfoBottomSheet;
 
@@ -44,9 +44,7 @@ public class StartParkingFragment extends Fragment {
         return fragment;
     }
 
-    public StartParkingFragment() {
-        // Required empty public constructor
-    }
+    public StartParkingFragment() {}
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -71,7 +69,7 @@ public class StartParkingFragment extends Fragment {
             AppCompatActivity activity = (AppCompatActivity) getActivity();
             if (activity.getSupportActionBar() != null) {
                 activity.getSupportActionBar().setTitle("Έναρξη Στάθμευσης");
-                activity.getSupportActionBar().setDisplayHomeAsUpEnabled(true); // Back arrow
+                activity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             }
         }
 
@@ -103,6 +101,7 @@ public class StartParkingFragment extends Fragment {
             InputMethodManager imm = (InputMethodManager) requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
 
+            // Περνάει στο StopParkingFragment
             StopParkingFragment stopFragment = StopParkingFragment.newInstance(sector, currentTime, plate, email);
 
             getParentFragmentManager()
@@ -124,18 +123,16 @@ public class StartParkingFragment extends Fragment {
                 SpotChoiceInfoBottomSheet bottomSheet = SpotChoiceInfoBottomSheet.newInstance(address, sector, price);
                 bottomSheet.show(getParentFragmentManager(), "spot_choice_info");
 
-                // Επαναφορά ορατότητας map & κρυφτό container
+                // Επαναφορά map & controls ΟΤΑΝ επιστρέφουμε στον χάρτη
                 View mapView = getActivity().findViewById(R.id.map);
                 mapView.setVisibility(View.VISIBLE);
 
                 View fragmentContainer = getActivity().findViewById(R.id.fragment_container);
                 fragmentContainer.setVisibility(View.GONE);
 
-                // >>>>>> ΝΕΑ ΠΡΟΣΘΗΚΗ: Επανεμφάνισε τα map views
                 if (getActivity() instanceof MapsActivity) {
                     ((MapsActivity) getActivity()).toggleMainMapViews(true);
                 }
-                // <<<<<<
 
                 getParentFragmentManager().popBackStack();
             }
@@ -144,21 +141,9 @@ public class StartParkingFragment extends Fragment {
         return super.onOptionsItemSelected(item);
     }
 
+    // Προσοχή! ΔΕΝ διαχειρίζομαι το visibility εδώ!
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        if (getActivity() != null) {
-            // >>>>>> ΝΕΑ ΠΡΟΣΘΗΚΗ: Επανεμφάνισε τα map views
-            if (getActivity() instanceof MapsActivity) {
-                ((MapsActivity) getActivity()).toggleMainMapViews(true);
-            }
-            // <<<<<<
-
-            View mapView = getActivity().findViewById(R.id.map);
-            mapView.setVisibility(View.VISIBLE);
-
-            View fragmentContainer = getActivity().findViewById(R.id.fragment_container);
-            fragmentContainer.setVisibility(View.GONE);
-        }
     }
 }
