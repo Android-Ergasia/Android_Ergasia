@@ -1,11 +1,9 @@
+// StartParkingFragment.java (πλήρως ολοκληρωμένος)
 package com.example.ergasiaandroid.Fragments;
 
 import android.os.Bundle;
 import android.util.Patterns;
-import android.view.LayoutInflater;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
+import android.view.*;
 import android.view.inputmethod.InputMethodManager;
 import android.content.Context;
 import android.widget.Button;
@@ -107,10 +105,9 @@ public class StartParkingFragment extends Fragment {
             if (priceNumeric.isEmpty()) priceNumeric = "1.5";
             if (priceNumeric.endsWith(".")) priceNumeric = priceNumeric.substring(0, priceNumeric.length() - 1);
 
-            // === Σωστή κλήση με θέση + διεύθυνση ===
             StopParkingFragment stopFragment = StopParkingFragment.newInstance(
-                    sector,     // θέλεις να εμφανίζει το "Parking 3" κλπ
-                    address,    // διεύθυνση
+                    sector,
+                    address,
                     currentTime,
                     plate,
                     email,
@@ -132,15 +129,8 @@ public class StartParkingFragment extends Fragment {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
             if (getActivity() != null) {
-                // Εδώ περνάμε ξανά και τη θέση (sector) αν το θες, ή άφησέ το μόνο address+price
                 SpotChoiceInfoBottomSheet bottomSheet = SpotChoiceInfoBottomSheet.newInstance(address, sector, price);
                 bottomSheet.show(getParentFragmentManager(), "spot_choice_info");
-
-                View mapView = getActivity().findViewById(R.id.map);
-                mapView.setVisibility(View.VISIBLE);
-
-                View fragmentContainer = getActivity().findViewById(R.id.fragment_container);
-                fragmentContainer.setVisibility(View.GONE);
 
                 if (getActivity() instanceof MapsActivity) {
                     ((MapsActivity) getActivity()).toggleMainMapViews(true);

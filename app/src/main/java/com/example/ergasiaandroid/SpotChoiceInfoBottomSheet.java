@@ -63,8 +63,8 @@ public class SpotChoiceInfoBottomSheet extends BottomSheetDialogFragment {
                 fragmentContainer.setVisibility(View.VISIBLE);
 
                 // Κρύψε το χάρτη
-                View mapView = getActivity().findViewById(R.id.map);
-                mapView.setVisibility(View.GONE);
+//                View mapView = getActivity().findViewById(R.id.map);
+//                mapView.setVisibility(View.GONE);
 
                 // Περνάμε ως sector το spotName, ως address τη διεύθυνση (και την τιμή)
                 StartParkingFragment fragment = StartParkingFragment.newInstance(spotName, address, pricePerHour);

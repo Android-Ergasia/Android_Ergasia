@@ -1,84 +1,21 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:map="http://schemas.android.com/apk/res-auto"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- Google Map Fragment -->
-    <androidx.fragment.app.FragmentContainerView
-        android:id="@+id/map"
-        android:name="com.google.android.gms.maps.SupportMapFragment"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-
-    <!-- Search Bar -->
-    <EditText
-        android:id="@+id/searchBar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="@string/search_hint"
-        android:layout_marginStart="10dp"
-        android:layout_marginEnd="10dp"
-        android:layout_marginTop="10dp"
-        android:padding="8dp"
-        android:background="@android:drawable/edit_text"
-        android:textColor="#000000"
-        android:inputType="text"
-        android:importantForAutofill="yes"
-        android:imeOptions="actionSearch" />
-
-    <!-- Spinner φίλτρου -->
-    <Spinner
-        android:id="@+id/availabilityFilter"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:minHeight="48dp"
-        android:padding="8dp"
-        android:layout_below="@id/searchBar"
-        android:layout_alignParentEnd="true"
-        android:layout_margin="10dp"
-        android:contentDescription="@string/filter_spinner_desc" />
-
-    <!-- Λίστα Θέσεων -->
-    <ListView
-        android:id="@+id/parkingList"
-        android:layout_width="match_parent"
-        android:layout_height="180dp"
-        android:layout_alignParentBottom="true"
-        android:layout_margin="10dp"
-        android:background="#DDFFFFFF"
-        android:divider="#CCCCCC"
-        android:dividerHeight="1dp" />
-
-    <!-- Zoom Out (κάτω) -->
-    <Button
-        android:id="@+id/btnZoomOut"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:text="@string/zoom_out"
-        android:textSize="20sp"
-        android:layout_above="@id/parkingList"
-        android:layout_alignParentEnd="true"
-        android:layout_marginEnd="10dp"
-        android:layout_marginBottom="10dp" />
-
-    <!-- Zoom In (πάνω) -->
-    <Button
-        android:id="@+id/btnZoomIn"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:text="@string/zoom_in"
-        android:textSize="20sp"
-        android:layout_above="@id/btnZoomOut"
-        android:layout_alignParentEnd="true"
-        android:layout_marginEnd="10dp"
-        android:layout_marginBottom="8dp" />
-
-    <!-- Fragment container για start/stop parking fragments - ΒΑΖΕΤΑΙ ΤΕΛΟΣ -->
+    <!-- Fragment container που θα εμφανίζει MapFragment, WalletFragment, StatisticsFragment -->
     <FrameLayout
         android:id="@+id/fragment_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="gone"
-        android:background="@android:color/white" />
+        android:layout_above="@id/bottom_nav" />
 
+    <!-- Bottom navigation -->
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottom_nav"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        app:menu="@menu/bottom_nav_menu"
+        app:labelVisibilityMode="labeled" />
 </RelativeLayout>

@@ -21,11 +21,12 @@
     <string name="zoom_in">+</string>
     <string name="zoom_out">-</string>
 
-    <string-array name="filter_options">
+    <string-array name="availability_options">
         <item>Όλες</item>
         <item>Διαθέσιμες</item>
         <item>Κατειλημμένες</item>
     </string-array>
+
 
 
 </resources>

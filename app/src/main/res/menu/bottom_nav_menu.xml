@@ -1,0 +1,14 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/nav_map"
+        android:icon="@drawable/baseline_map_24"
+        android:title="Χάρτης" />
+    <item
+        android:id="@+id/nav_wallet"
+        android:icon="@drawable/baseline_account_balance_wallet_24"
+        android:title="Πορτοφόλι" />
+    <item
+        android:id="@+id/nav_stats"
+        android:icon="@drawable/baseline_query_stats_24"
+        android:title="Στατιστικά" />
+</menu>

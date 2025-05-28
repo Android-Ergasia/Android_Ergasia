@@ -1,228 +1,60 @@
 package com.example.ergasiaandroid;
 
-import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
-import android.location.Address;
-import android.location.Geocoder;
-
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
-
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ListView;
-import android.widget.Spinner;
-import android.widget.Toast;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.TextView;
-import android.view.KeyEvent;
-import android.view.inputmethod.EditorInfo;
 
-import com.google.android.gms.maps.model.BitmapDescriptor;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
+import com.example.ergasiaandroid.Fragments.StatisticsFragment;
+import com.example.ergasiaandroid.Fragments.WalletFragment;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
-public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {
-
-    private GoogleMap mMap;
-    private List<ParkingSpot> allSpots;
-
-    class ParkingSpot {
-        String name;
-        double lat, lng;
-        boolean isAvailable;
-        String address;
-        String pricePerHour;
-
-        ParkingSpot(String name, double lat, double lng, boolean isAvailable, String pricePerHour, AppCompatActivity context) {
-            this.name = name;
-            this.lat = lat;
-            this.lng = lng;
-            this.isAvailable = isAvailable;
-            this.pricePerHour = pricePerHour;
-            this.address = getAddressFromLocation(context, lat, lng);
-        }
-
-        private String getAddressFromLocation(AppCompatActivity context, double latitude, double longitude) {
-            try {
-                Geocoder geocoder = new Geocoder(context, Locale.getDefault());
-                List<Address> addresses = geocoder.getFromLocation(latitude, longitude, 1);
-                if (addresses != null && !addresses.isEmpty()) {
-                    Address addressObj = addresses.get(0);
-                    String thoroughfare = addressObj.getThoroughfare(); // οδός
-                    String featureName = addressObj.getFeatureName();   // αριθμός
-                    if (thoroughfare != null && featureName != null) {
-                        return thoroughfare + " " + featureName;
-                    } else if (addressObj.getAddressLine(0) != null) {
-                        return addressObj.getAddressLine(0);
-                    }
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return "Άγνωστη διεύθυνση";
-        }
-    }
-
-    // Δημιουργία όλων των θέσεων (χωρίς fixed address πλέον)
-    private List<ParkingSpot> createAllSpots() {
-        return Arrays.asList(
-                new ParkingSpot("Parking 1", 21.3060, -157.8570, true, "2€/ώρα", this),
-                new ParkingSpot("Parking 2", 21.3072, -157.8585, false, "2€/ώρα", this),
-                new ParkingSpot("Parking 3", 21.3081, -157.8591, true, "2€/ώρα", this),
-                new ParkingSpot("Parking 4", 21.3065, -157.8560, false, "2€/ώρα", this),
-                new ParkingSpot("Parking 5", 21.3078, -157.8602, true, "2€/ώρα", this),
-                new ParkingSpot("Parking 6", 21.3059, -157.8548, false, "2€/ώρα", this),
-                new ParkingSpot("Parking 7", 21.3092, -157.8579, true, "2€/ώρα", this),
-                new ParkingSpot("Parking 8", 21.3080, -157.8556, false, "2€/ώρα", this),
-                new ParkingSpot("Parking 9", 21.3067, -157.8537, true, "2€/ώρα", this),
-                new ParkingSpot("Parking 10", 21.3055, -157.8582, true, "2€/ώρα", this)
-        );
-    }
-
-    private void showAllParkingSpots(String filter) {
-        mMap.clear();
-        for (ParkingSpot spot : allSpots) {
-            if (filter.equals("Όλες") ||
-                    (filter.equals("Διαθέσιμες") && spot.isAvailable) ||
-                    (filter.equals("Κατειλημμένες") && !spot.isAvailable)) {
-
-                BitmapDescriptor icon;
-
-                if (spot.isAvailable) {
-                    Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.marker_green);
-                    Bitmap scaledBitmap = Bitmap.createScaledBitmap(bitmap, 100, 150, false);
-                    icon = BitmapDescriptorFactory.fromBitmap(scaledBitmap);
-                } else {
-                    Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.marker_red);
-                    Bitmap scaledBitmap = Bitmap.createScaledBitmap(bitmap, 150, 150, false);
-                    icon = BitmapDescriptorFactory.fromBitmap(scaledBitmap);
-                }
-
-                Marker marker = mMap.addMarker(new MarkerOptions()
-                        .position(new LatLng(spot.lat, spot.lng))
-                        .title(spot.name + (spot.isAvailable ? " - Διαθέσιμο" : " - Κατειλημμένο"))
-                        .icon(icon));
-
-                marker.setTag(spot);
-            }
-        }
-    }
+public class MapsActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
 
-        getWindow().setSoftInputMode(android.view.WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+        BottomNavigationView bottomNav = findViewById(R.id.bottom_nav);
 
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
-    }
+        bottomNav.setOnItemSelectedListener(item -> {
+            Fragment selectedFragment = null;
 
-    @Override
-    public void onMapReady(GoogleMap googleMap) {
-        mMap = googleMap;
-        allSpots = createAllSpots();
-
-        LatLng honolulu = new LatLng(21.3069, -157.8583);
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(honolulu, 15));
-
-        showAllParkingSpots("Όλες");
-
-        Button btnZoomIn = findViewById(R.id.btnZoomIn);
-        Button btnZoomOut = findViewById(R.id.btnZoomOut);
-
-        btnZoomIn.setOnClickListener(v -> mMap.animateCamera(CameraUpdateFactory.zoomIn()));
-        btnZoomOut.setOnClickListener(v -> mMap.animateCamera(CameraUpdateFactory.zoomOut()));
-
-        Spinner filterSpinner = findViewById(R.id.availabilityFilter);
-        filterSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                String filter = parent.getItemAtPosition(position).toString();
-                showAllParkingSpots(filter);
+            switch (item.getItemId()) {
+                case R.id.nav_map:
+                    selectedFragment = new MapFragment();
+                    break;
+                case R.id.nav_wallet:
+                    selectedFragment = new WalletFragment();
+                    break;
+                case R.id.nav_stats:
+                    selectedFragment = new StatisticsFragment();
+                    break;
             }
 
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {}
-        });
-
-        EditText searchBar = findViewById(R.id.searchBar);
-        searchBar.setOnEditorActionListener((TextView v, int actionId, KeyEvent event) -> {
-            if (actionId == EditorInfo.IME_ACTION_SEARCH ||
-                    event != null && event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
-                String query = searchBar.getText().toString().trim().toLowerCase();
-                for (ParkingSpot spot : allSpots) {
-                    if (spot.name.toLowerCase().contains(query)) {
-                        LatLng position = new LatLng(spot.lat, spot.lng);
-                        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(position, 17));
-                        break;
-                    }
-                }
+            if (selectedFragment != null) {
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.fragment_container, selectedFragment)
+                        .commit();
                 return true;
             }
+
             return false;
         });
 
-        ListView parkingList = findViewById(R.id.parkingList);
-        List<String> names = new ArrayList<>();
-        for (ParkingSpot spot : allSpots) {
-            names.add(spot.name + (spot.isAvailable ? " ✅" : " ❌"));
+
+        // Default να φορτώνεται ο χάρτης
+        if (savedInstanceState == null) {
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragment_container, new MapFragment())
+                    .commit();
         }
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, names);
-        parkingList.setAdapter(adapter);
-
-        parkingList.setOnItemClickListener((parent, view, position, id) -> {
-            ParkingSpot selected = allSpots.get(position);
-            LatLng loc = new LatLng(selected.lat, selected.lng);
-            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(loc, 17));
-        });
-
-        // ΕΔΩ η σωστή χρήση newInstance:
-        mMap.setOnMarkerClickListener(marker -> {
-            String title = marker.getTitle();
-            ParkingSpot matchedSpot = null;
-            for (ParkingSpot spot : allSpots) {
-                if (title.contains(spot.name)) {
-                    matchedSpot = spot;
-                    break;
-                }
-            }
-
-            if (matchedSpot != null) {
-                if (!matchedSpot.isAvailable) {
-                    Toast.makeText(this, "Η θέση \"" + matchedSpot.name + "\" δεν είναι διαθέσιμη αυτή τη στιγμή.", Toast.LENGTH_LONG).show();
-                } else {
-                    // Περνάμε address, spotName και price!
-                    SpotChoiceInfoBottomSheet bottomSheet = SpotChoiceInfoBottomSheet.newInstance(
-                            matchedSpot.address,
-                            matchedSpot.name,          // <<<<<< Όνομα parking!
-                            matchedSpot.pricePerHour
-                    );
-                    bottomSheet.show(getSupportFragmentManager(), "SpotChoiceInfoBottomSheet");
-                }
-            }
-            return true;
-        });
     }
 
-    public void toggleMainMapViews(boolean show) {
-        int visibility = show ? View.VISIBLE : View.GONE;
+    public void toggleMainMapViews(boolean b) {
+        int visibility = b ? View.VISIBLE : View.GONE;
         findViewById(R.id.searchBar).setVisibility(visibility);
         findViewById(R.id.availabilityFilter).setVisibility(visibility);
         findViewById(R.id.parkingList).setVisibility(visibility);
