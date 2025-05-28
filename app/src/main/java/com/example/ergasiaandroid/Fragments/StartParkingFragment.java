@@ -30,12 +30,16 @@ public class StartParkingFragment extends Fragment {
     private EditText editPlate, editEmail;
     private TextView textSector, textStartTime;
     private String sector;
+    private String address;
+    private String price;
 
     // Δημιουργία νέου instance του fragment με όρισμα τον τομέα
-    public static StartParkingFragment newInstance(String sector) {
+    public static StartParkingFragment newInstance(String sector, String address, String price) {
         StartParkingFragment fragment = new StartParkingFragment();
         Bundle args = new Bundle();
         args.putString("spot_number", sector);
+        args.putString("spot_address", address);
+        args.putString("spot_price", price);
         fragment.setArguments(args);
         return fragment;
     }
@@ -76,6 +80,10 @@ public class StartParkingFragment extends Fragment {
         // Ανάγνωση του τομέα από τα arguments
         if (getArguments() != null) {
             sector = getArguments().getString("spot_number", "Άγνωστος");
+
+            // Αποθήκευση διεύθυνσης και τιμής για το back button
+            address = getArguments().getString("spot_address", "Άγνωστη διεύθυνση");
+            price = getArguments().getString("spot_price", "Άγνωστη τιμή");
         }
 
         // Λήψη και μορφοποίηση της τρέχουσας ημερομηνίας και ώρας
@@ -134,9 +142,9 @@ public class StartParkingFragment extends Fragment {
             if (getActivity() != null) {
                 // Δημιουργία του bottom sheet με τα κατάλληλα δεδομένα
                 SpotChoiceInfoBottomSheet bottomSheet = SpotChoiceInfoBottomSheet.newInstance(
-                        "Διεύθυνση Παράδειγμα", // Μπορείς να βάλεις την πραγματική διεύθυνση εδώ αν την έχεις
+                        address,
                         sector,
-                        "2€/ώρα" // Μπορείς να περάσεις την πραγματική τιμή
+                        price
                 );
 
                 // Εμφάνιση του BottomSheet
