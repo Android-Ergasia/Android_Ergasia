@@ -31,7 +31,7 @@ public class StopParkingFragment extends Fragment {
         StopParkingFragment fragment = new StopParkingFragment();
         Bundle args = new Bundle();
         args.putString("sector", sector);
-        args.putString("startTime", startTime);
+        args.putString("start_time", startTime);  // <-- ΕΝΑΡΜΟΝΙΣΗ KEY
         args.putString("plate", plate);
         args.putString("email", email);
         fragment.setArguments(args);
@@ -63,7 +63,7 @@ public class StopParkingFragment extends Fragment {
         // Αντιστοίχιση των arguments που πέρασαν κατά τη δημιουργία του fragment με τις μεταβλητές
         if (getArguments() != null) {
             sector = getArguments().getString("sector");
-            startTime = getArguments().getString("startTime");
+            startTime = getArguments().getString("start_time");  // <-- ΕΝΑΡΜΟΝΙΣΗ KEY
             plate = getArguments().getString("plate");
             email = getArguments().getString("email");
         }

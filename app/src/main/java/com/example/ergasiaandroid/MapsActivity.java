@@ -1,5 +1,6 @@
 package com.example.ergasiaandroid;
 
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentActivity;
 import android.os.Bundle;
 
@@ -32,7 +33,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
+public class MapsActivity  extends AppCompatActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
     private List<ParkingSpot> allSpots;
@@ -193,5 +194,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             return true;
         });
     }
+    private void toggleMainMapViews(boolean show) {
+        int visibility = show ? View.VISIBLE : View.GONE;
+        findViewById(R.id.searchBar).setVisibility(visibility);
+        findViewById(R.id.availabilityFilter).setVisibility(visibility);
+        findViewById(R.id.btnInfo).setVisibility(visibility);
+        findViewById(R.id.parkingList).setVisibility(visibility);
+        findViewById(R.id.btnZoomIn).setVisibility(visibility);
+        findViewById(R.id.btnZoomOut).setVisibility(visibility);
+    }
+
 
 }

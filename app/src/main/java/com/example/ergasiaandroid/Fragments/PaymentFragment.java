@@ -116,6 +116,8 @@ public class PaymentFragment extends Fragment {
 
     private double calculateCost(String startTimeStr, String endTimeStr, double costPerHour) {
         try {
+            System.out.println("Received startTime: " + startTimeStr);
+
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
             LocalDateTime start = LocalDateTime.parse(startTimeStr, formatter);
             LocalDateTime end = LocalDateTime.parse(endTimeStr, formatter);

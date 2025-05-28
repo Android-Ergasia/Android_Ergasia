@@ -52,12 +52,22 @@ public class SpotChoiceInfoBottomSheet extends BottomSheetDialogFragment {
 
         startButton.setOnClickListener(v -> {
             if (getActivity() != null) {
+                // Κάνουμε ορατό το container fragment_container
+                View fragmentContainer = getActivity().findViewById(R.id.fragment_container);
+                fragmentContainer.setVisibility(View.VISIBLE);
+
+                // Κρύβουμε τον χάρτη
+                View mapView = getActivity().findViewById(R.id.map);
+                mapView.setVisibility(View.GONE);
+
+                // Φορτώνουμε το StartParkingFragment
                 StartParkingFragment fragment = StartParkingFragment.newInstance(spotNumber, address, pricePerHour);
                 getParentFragmentManager()
                         .beginTransaction()
                         .replace(R.id.fragment_container, fragment)
                         .addToBackStack(null)
                         .commit();
+
                 dismiss();
             }
         });
