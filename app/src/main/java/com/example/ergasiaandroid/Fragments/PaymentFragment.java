@@ -120,14 +120,25 @@ public class PaymentFragment extends Fragment {
             LocalDateTime start = LocalDateTime.parse(startTimeStr, formatter);
             LocalDateTime end = LocalDateTime.parse(endTimeStr, formatter);
 
-            double hours = Duration.between(start, end).toMinutes() / 60.0;
-            return hours * costPerHour;
+            System.out.println("Start: " + startTimeStr);
+            System.out.println("End: " + endTimeStr);
+
+            long seconds = Duration.between(start, end).getSeconds();
+            System.out.println("Διάρκεια σε δευτερόλεπτα: " + seconds);
+
+            double hoursRoundedUp = Math.ceil(seconds / 3600.0);
+            System.out.println("Στρογγυλοποιημένες ώρες: " + hoursRoundedUp);
+
+            return hoursRoundedUp * costPerHour;
 
         } catch (Exception e) {
             e.printStackTrace();
-            Toast.makeText(getContext(), "Σφάλμα υπολογισμού κόστους: λάθος ώρα έναρξης", Toast.LENGTH_LONG).show();
+            System.out.println("Σφάλμα υπολογισμού κόστους.");
             return 0;
         }
     }
+
+
+
 
 }
