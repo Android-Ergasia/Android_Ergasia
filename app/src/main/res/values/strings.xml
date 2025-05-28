@@ -13,4 +13,19 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 
+    <string name="title_activity_maps">MapsActivity</string>
+
+    <string name="search_hint">Αναζήτηση Parking</string>
+    <string name="info_button">ΠΛΗΡΟΦΟΡΙΕΣ</string>
+    <string name="filter_spinner_desc">Επιλογή φίλτρου θέσεων</string>
+    <string name="zoom_in">+</string>
+    <string name="zoom_out">-</string>
+
+    <string-array name="filter_options">
+        <item>Όλες</item>
+        <item>Διαθέσιμες</item>
+        <item>Κατειλημμένες</item>
+    </string-array>
+
+
 </resources>
