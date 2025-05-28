@@ -1,10 +1,16 @@
-package com.example.ergasiaandroid;
+package com.example.ergasiaandroid.Fragments;
 
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import com.example.ergasiaandroid.R;
 
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -15,7 +21,6 @@ import com.android.volley.toolbox.Volley;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import com.example.ergasiaandroid.R;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -23,29 +28,29 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-public class Statistics extends AppCompatActivity {
+public class StatisticsFragment extends Fragment {
 
-    private TextView tvTotalAmount, tvTotalHours, tvPerSpot;
+    private TextView tvTotalAmount, tvTotalHours;
     private LinearLayout layoutPerSpot;
 
+    @Nullable
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.statistics);
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_statistics, container, false);
 
-        tvTotalAmount = findViewById(R.id.tvTotalAmount);
-        tvTotalHours = findViewById(R.id.tvTotalHours);
-        tvPerSpot = findViewById(R.id.tvPerSpot);
-        layoutPerSpot = findViewById(R.id.layoutPerSpot);
+        tvTotalAmount = view.findViewById(R.id.tvTotalAmount);
+        tvTotalHours = view.findViewById(R.id.tvTotalHours);
+        layoutPerSpot = view.findViewById(R.id.layoutPerSpot);
 
         fetchStats();
+
+        return view;
     }
 
     private void fetchStats() {
         String url = "https://mocki.io/v1/97ec4d09-d847-42dd-a3ab-1f539fbc51c2";
 
-
-        RequestQueue queue = Volley.newRequestQueue(this);
+        RequestQueue queue = Volley.newRequestQueue(requireContext());
 
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null,
                 new Response.Listener<JSONObject>() {
@@ -87,7 +92,7 @@ public class Statistics extends AppCompatActivity {
 
                             layoutPerSpot.removeAllViews();
                             for (Map.Entry<String, Double> entry : hoursPerSpot.entrySet()) {
-                                TextView tv = new TextView(Statistics.this);
+                                TextView tv = new TextView(getContext());
                                 tv.setText(entry.getKey() + ": " + String.format(Locale.getDefault(), "%.2f ώρες", entry.getValue()));
                                 tv.setTextSize(18);
                                 layoutPerSpot.addView(tv);
@@ -108,5 +113,4 @@ public class Statistics extends AppCompatActivity {
 
         queue.add(request);
     }
-
 }

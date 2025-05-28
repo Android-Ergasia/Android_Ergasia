@@ -32,7 +32,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class MapsActivity  extends AppCompatActivity implements OnMapReadyCallback {
+public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
     private List<ParkingSpot> allSpots;
@@ -56,7 +56,7 @@ public class MapsActivity  extends AppCompatActivity implements OnMapReadyCallba
 
     private List<ParkingSpot> getAllSpots() {
         return Arrays.asList(
-                new ParkingSpot("Parking 1", 21.3060, -157.8570, true,"123 Aloha St", "2€/ώρα"),
+                new ParkingSpot("Parking 1", 21.3060, -157.8570, true, "123 Aloha St", "2€/ώρα"),
                 new ParkingSpot("Parking 2", 21.3072, -157.8585, false, "123 Aloha St", "2€/ώρα"),
                 new ParkingSpot("Parking 3", 21.3081, -157.8591, true, "123 Aloha St", "2€/ώρα"),
                 new ParkingSpot("Parking 4", 21.3065, -157.8560, false, "123 Aloha St", "2€/ώρα"),
@@ -103,9 +103,8 @@ public class MapsActivity  extends AppCompatActivity implements OnMapReadyCallba
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
 
-        Button btnInfo = findViewById(R.id.btnInfo);
-        btnInfo.setOnClickListener(v -> Toast.makeText(MapsActivity.this,
-                "Η εφαρμογή δείχνει τις διαθέσιμες θέσεις στάθμευσης στον χάρτη", Toast.LENGTH_LONG).show());
+        // Απόκρυψη πληκτρολογίου στην εκκίνηση
+        getWindow().setSoftInputMode(android.view.WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -171,7 +170,6 @@ public class MapsActivity  extends AppCompatActivity implements OnMapReadyCallba
             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(loc, 17));
         });
 
-        // MARKER CLICK LISTENER
         mMap.setOnMarkerClickListener(marker -> {
             String title = marker.getTitle();
             ParkingSpot matchedSpot = null;
@@ -194,12 +192,10 @@ public class MapsActivity  extends AppCompatActivity implements OnMapReadyCallba
         });
     }
 
-    // Χρησιμοποιείται ΜΟΝΟ όταν θες να κρύψεις ή να εμφανίσεις ΟΛΑ τα main views του MapActivity
     public void toggleMainMapViews(boolean show) {
         int visibility = show ? View.VISIBLE : View.GONE;
         findViewById(R.id.searchBar).setVisibility(visibility);
         findViewById(R.id.availabilityFilter).setVisibility(visibility);
-        findViewById(R.id.btnInfo).setVisibility(visibility);
         findViewById(R.id.parkingList).setVisibility(visibility);
         findViewById(R.id.btnZoomIn).setVisibility(visibility);
         findViewById(R.id.btnZoomOut).setVisibility(visibility);
