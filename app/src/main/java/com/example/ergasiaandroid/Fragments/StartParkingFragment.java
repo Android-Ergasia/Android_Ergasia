@@ -102,8 +102,7 @@ public class StartParkingFragment extends Fragment {
             imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
 
             // Περνάει στο StopParkingFragment
-            StopParkingFragment stopFragment = StopParkingFragment.newInstance(sector, currentTime, plate, email);
-
+            StopParkingFragment stopFragment = StopParkingFragment.newInstance(sector, currentTime, plate, email, price);
             getParentFragmentManager()
                     .beginTransaction()
                     .replace(R.id.fragment_container, stopFragment)
