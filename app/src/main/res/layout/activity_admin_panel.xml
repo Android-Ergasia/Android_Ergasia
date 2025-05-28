@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".AdminPanelActivity">
+
+    <!-- ΜΟΝΟ ΕΝΑ παιδί επιτρέπεται μέσα στο ScrollView -->
+    <LinearLayout
+        android:id="@+id/adminLayout"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <!-- Προαιρετικά: Μπορείς να αφήσεις αυτό το TextView ή όχι -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Διαχείριση Χώρων Στάθμευσης"
+            android:textStyle="bold"
+            android:textSize="18sp"
+            android:layout_marginBottom="16dp" />
+
+        <!-- 🔽 Εδώ θα προστίθενται δυναμικά τα parking_items -->
+
+        <!-- 🔙 Κουμπί επιστροφής -->
+        <Button
+            android:id="@+id/btnBackToMap"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Πίσω στον Χάρτη"
+            android:layout_marginTop="24dp"
+            android:backgroundTint="#6200EE"
+            android:textColor="#FFFFFF" />
+
+    </LinearLayout>
+</ScrollView>
