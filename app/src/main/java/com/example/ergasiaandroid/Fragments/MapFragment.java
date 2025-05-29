@@ -104,7 +104,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
         List<String> names = new ArrayList<>();
         for (ParkingSpot spot : allSpots) {
-            names.add(spot.name + (spot.isAvailable ? " ✅" : " ❌"));
+            names.add(spot.address + (spot.isAvailable ? " ✅" : " ❌"));
         }
         ArrayAdapter<String> listAdapter = new ArrayAdapter<>(requireContext(),
                 android.R.layout.simple_list_item_1, names);
