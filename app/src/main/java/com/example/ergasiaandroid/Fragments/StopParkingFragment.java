@@ -15,6 +15,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 
 import com.example.ergasiaandroid.R;
 
@@ -133,14 +134,17 @@ public class StopParkingFragment extends Fragment {
             if (walletBalance >= totalCost) {
                 setWalletBalance(walletBalance - totalCost);
                 Toast.makeText(getContext(), "Πληρωμή με wallet ολοκληρώθηκε επιτυχώς!", Toast.LENGTH_LONG).show();
-                // Ενημέρωση υπολοίπου στην οθόνη
-                walletBalanceView.setText(String.format("Υπόλοιπο Wallet: %.2f €", walletBalance - totalCost));
                 payWithCard.setEnabled(false);
                 payWithWallet.setEnabled(false);
+
+                // Καθαρίζει όλο το fragment back stack -> επιστρέφει στον χάρτη
+                requireActivity().getSupportFragmentManager()
+                        .popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
             } else {
                 Toast.makeText(getContext(), "Ανεπαρκές υπόλοιπο στο wallet.", Toast.LENGTH_LONG).show();
             }
         });
+
 
         if (getActivity() != null) {
             AppCompatActivity activity = (AppCompatActivity) getActivity();

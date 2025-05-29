@@ -1,5 +1,6 @@
 package com.example.ergasiaandroid.Fragments;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.Gravity;
@@ -15,6 +16,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
+import com.example.ergasiaandroid.MapsActivity;
 import com.example.ergasiaandroid.R;
 import com.google.android.material.textfield.TextInputEditText;
 
@@ -101,9 +103,15 @@ public class PaymentFragment extends Fragment {
                 Toast.makeText(getContext(), "Συμπληρώστε όλα τα πεδία!", Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(getContext(), "Η πληρωμή ολοκληρώθηκε!", Toast.LENGTH_LONG).show();
-                // Εδώ μπορείς να προσθέσεις αποθήκευση/αποστολή δεδομένων
+
+                // Πήγαινε στην αρχική (MapsActivity)
+                Intent intent = new Intent(getActivity(), MapsActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+                requireActivity().finish(); // Κλείσε το τρέχον activity
             }
         });
+
 
         cancelButton.setOnClickListener(v -> {
             cardNumber.setText("");
