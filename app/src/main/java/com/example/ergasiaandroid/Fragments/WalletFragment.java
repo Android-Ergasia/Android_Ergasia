@@ -1,6 +1,5 @@
 package com.example.ergasiaandroid.Fragments;
 
-
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -11,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.example.ergasiaandroid.Fragments.PaymentFragment;
 import com.example.ergasiaandroid.R;
 
 public class WalletFragment extends Fragment {
@@ -56,11 +56,11 @@ public class WalletFragment extends Fragment {
         Bundle bundle = new Bundle();
         bundle.putInt("amount", amount);
 
-        PaymentFragment2 paymentFragment2 = new PaymentFragment2();
-        paymentFragment2.setArguments(bundle);
+        PaymentFragment paymentFragment = new PaymentFragment();
+        paymentFragment.setArguments(bundle);
 
         requireActivity().getSupportFragmentManager().beginTransaction()
-                .replace(R.id.fragment_container, paymentFragment2)
+                .replace(R.id.fragment_container, paymentFragment)
                 .addToBackStack(null)
                 .commit();
     }
