@@ -1,4 +1,3 @@
-// StartParkingFragment.java (πλήρως ολοκληρωμένος)
 package com.example.ergasiaandroid.Fragments;
 
 import android.os.Bundle;
@@ -101,18 +100,24 @@ public class StartParkingFragment extends Fragment {
             InputMethodManager imm = (InputMethodManager) requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
 
+            // Καθαρισμός τιμής τιμής
             String priceNumeric = price.replaceAll(",", ".").replaceAll("[^0-9.]", "");
             if (priceNumeric.isEmpty()) priceNumeric = "1.5";
             if (priceNumeric.endsWith(".")) priceNumeric = priceNumeric.substring(0, priceNumeric.length() - 1);
 
+            String currentTimeLocal = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date());
+
             StopParkingFragment stopFragment = StopParkingFragment.newInstance(
                     sector,
                     address,
-                    currentTime,
+                    currentTimeLocal,
                     plate,
                     email,
-                    priceNumeric
+                    priceNumeric,
+                    false,     // paymentPhase = false στην αρχή
+                    null       // totalCost = null στην αρχή
             );
+
             getParentFragmentManager()
                     .beginTransaction()
                     .replace(R.id.fragment_container, stopFragment)

@@ -1,10 +1,10 @@
 package com.example.ergasiaandroid.Fragments;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -16,35 +16,32 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
-import com.example.ergasiaandroid.MapsActivity;
 import com.example.ergasiaandroid.R;
 import com.google.android.material.textfield.TextInputEditText;
 
-import java.text.SimpleDateFormat;
-import java.time.Duration;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Date;
 import java.util.Locale;
 
 public class PaymentFragment extends Fragment {
 
-    private String sector, startTime, plate, email;
+    private String sector, address, startTime, plate, email, spotPriceStr;
+    private double amount;
 
-    public static PaymentFragment newInstance(String sector, String startTime, String plate, String email) {
+    public static PaymentFragment newInstance(String sector, String address, String startTime,
+                                              String plate, String email, double amount, String spotPriceStr) {
         PaymentFragment fragment = new PaymentFragment();
         Bundle args = new Bundle();
         args.putString("sector", sector);
+        args.putString("address", address);
         args.putString("start_time", startTime);
         args.putString("plate", plate);
         args.putString("email", email);
+        args.putDouble("amount", amount);
+        args.putString("spot_price", spotPriceStr);
         fragment.setArguments(args);
         return fragment;
     }
 
-    public PaymentFragment() {
-        // Required empty public constructor
-    }
+    public PaymentFragment() {}
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -56,20 +53,23 @@ public class PaymentFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // Λήψη τιμών από arguments
         if (getArguments() != null) {
             sector = getArguments().getString("sector");
+            address = getArguments().getString("address");
             startTime = getArguments().getString("start_time");
             plate = getArguments().getString("plate");
             email = getArguments().getString("email");
+            amount = getArguments().getDouble("amount", 0.0);
+            spotPriceStr = getArguments().getString("spot_price");
         }
 
-        // Τίτλος ActionBar
         if (getActivity() != null) {
-            ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("Πληρωμή στάθμευσης");
+            AppCompatActivity activity = (AppCompatActivity) getActivity();
+            activity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            activity.getSupportActionBar().setTitle("Πληρωμή στάθμευσης");
+            setHasOptionsMenu(true);
         }
 
-        // View references
         TextInputEditText cardNumber = view.findViewById(R.id.cardNumber);
         TextInputEditText expiryMonth = view.findViewById(R.id.expiryMonth);
         TextInputEditText expiryYear = view.findViewById(R.id.expiryYearEdit);
@@ -80,75 +80,81 @@ public class PaymentFragment extends Fragment {
         TextView paymentAmount = view.findViewById(R.id.paymentAmount);
         TextView parkingInfo = view.findViewById(R.id.parkingInfo);
 
-        // Υπολογισμός πληρωμής
+        String costText = String.format(Locale.getDefault(), "%.2f €", amount);
+        paymentAmount.setText("Πληρωτέο Ποσό: " + costText);
 
-        String endTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date());
-        double cost = calculateCost(startTime, endTime, 1.5); // π.χ. 1.5€/ώρα
+        // Εμφανίζει ΟΛΑ τα στοιχεία που περνάς:
+        StringBuilder info = new StringBuilder();
+        info.append("Θέση: ").append(sector).append("\n")
+                .append("Διεύθυνση: ").append(address).append("\n")
+                .append("Ώρα έναρξης: ").append(startTime).append("\n")
+                .append("Πινακίδα: ").append(plate).append("\n")
+                .append("Email: ").append(email);
 
-        String costText = getString(R.string.amount) + "\n" + String.format(Locale.getDefault(), "%.2f €", cost);
-        paymentAmount.setText(costText);
-        paymentAmount.setGravity(Gravity.CENTER);
-
-        String info = "Πινακίδα: " + plate + "\nΤομέας: " + sector + "\nEmail: " + email + "\nΏρα έναρξης: " + startTime;
-        parkingInfo.setText(info);
-        parkingInfo.setGravity(Gravity.CENTER);
+        parkingInfo.setText(info.toString());
 
         payButton.setOnClickListener(v -> {
-            if (TextUtils.isEmpty(cardNumber.getText()) ||
-                    TextUtils.isEmpty(expiryMonth.getText()) ||
-                    TextUtils.isEmpty(expiryYear.getText()) ||
-                    TextUtils.isEmpty(cvv.getText()) ||
-                    TextUtils.isEmpty(cardHolder.getText())) {
-
-                Toast.makeText(getContext(), "Συμπληρώστε όλα τα πεδία!", Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(getContext(), "Η πληρωμή ολοκληρώθηκε!", Toast.LENGTH_LONG).show();
-
-                // Πήγαινε στην αρχική (MapsActivity)
-                Intent intent = new Intent(getActivity(), MapsActivity.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(intent);
-                requireActivity().finish(); // Κλείσε το τρέχον activity
+            if (validateCard(cardNumber, expiryMonth, expiryYear, cvv, cardHolder)) {
+                Toast toast = Toast.makeText(getContext(), "Πληρωμή επιτυχής!", Toast.LENGTH_LONG);
+                toast.setGravity(Gravity.CENTER, 0, 0);
+                toast.show();
             }
         });
 
-
         cancelButton.setOnClickListener(v -> {
-            cardNumber.setText("");
-            expiryMonth.setText("");
-            expiryYear.setText("");
-            cvv.setText("");
-            cardHolder.setText("");
+            // Επιστροφή στο StopParkingFragment με τα σωστά δεδομένα
+            StopParkingFragment stopParkingFragment = StopParkingFragment.newInstance(
+                    sector, address, startTime, plate, email,
+                    spotPriceStr, true, amount);
+
+            requireActivity().getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.fragment_container, stopParkingFragment)
+                    .commit();
         });
     }
 
-    private double calculateCost(String startTimeStr, String endTimeStr, double costPerHour) {
-        try {
-            System.out.println("Received startTime: " + startTimeStr);
-
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-            LocalDateTime start = LocalDateTime.parse(startTimeStr, formatter);
-            LocalDateTime end = LocalDateTime.parse(endTimeStr, formatter);
-
-            System.out.println("Start: " + startTimeStr);
-            System.out.println("End: " + endTimeStr);
-
-            long seconds = Duration.between(start, end).getSeconds();
-            System.out.println("Διάρκεια σε δευτερόλεπτα: " + seconds);
-
-            double hoursRoundedUp = Math.ceil(seconds / 3600.0);
-            System.out.println("Στρογγυλοποιημένες ώρες: " + hoursRoundedUp);
-
-            return hoursRoundedUp * costPerHour;
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.out.println("Σφάλμα υπολογισμού κόστους.");
-            return 0;
+    private boolean validateCard(TextInputEditText cardNumber, TextInputEditText expiryMonth,
+                                 TextInputEditText expiryYear, TextInputEditText cvv,
+                                 TextInputEditText cardHolder) {
+        if (TextUtils.isEmpty(cardNumber.getText())) {
+            cardNumber.setError("Απαιτείται αριθμός κάρτας");
+            return false;
         }
+        if (TextUtils.isEmpty(expiryMonth.getText())) {
+            expiryMonth.setError("Απαιτείται μήνας λήξης");
+            return false;
+        }
+        if (TextUtils.isEmpty(expiryYear.getText())) {
+            expiryYear.setError("Απαιτείται έτος λήξης");
+            return false;
+        }
+        if (TextUtils.isEmpty(cvv.getText())) {
+            cvv.setError("Απαιτείται CVV");
+            return false;
+        }
+        if (TextUtils.isEmpty(cardHolder.getText())) {
+            cardHolder.setError("Απαιτείται όνομα κατόχου");
+            return false;
+        }
+        return true;
     }
 
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            // Επιστροφή στο StopParkingFragment με τις παραμέτρους και την σωστή τιμή
+            StopParkingFragment stopParkingFragment = StopParkingFragment.newInstance(
+                    sector, address, startTime, plate, email,
+                    spotPriceStr, true, amount);
 
+            requireActivity().getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.fragment_container, stopParkingFragment)
+                    .commit();
 
-
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
 }

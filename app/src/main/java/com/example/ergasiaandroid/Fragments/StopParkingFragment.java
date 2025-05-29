@@ -2,9 +2,7 @@ package com.example.ergasiaandroid.Fragments;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.content.SharedPreferences;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -32,9 +30,11 @@ public class StopParkingFragment extends Fragment {
     private String endTime;
     private double totalCost;
     private double walletBalance;
+    private boolean isPaymentPhase = false;
 
-    // Περνάμε και address!
-    public static StopParkingFragment newInstance(String sector, String address, String startTime, String plate, String email, String pricePerHour) {
+    public static StopParkingFragment newInstance(String sector, String address, String startTime,
+                                                  String plate, String email, String spotPrice,
+                                                  boolean paymentPhase, Double totalCost) {
         StopParkingFragment fragment = new StopParkingFragment();
         Bundle args = new Bundle();
         args.putString("sector", sector);
@@ -42,7 +42,11 @@ public class StopParkingFragment extends Fragment {
         args.putString("start_time", startTime);
         args.putString("plate", plate);
         args.putString("email", email);
-        args.putString("spot_price", pricePerHour);
+        args.putString("spot_price", spotPrice);
+        args.putBoolean("payment_phase", paymentPhase);
+        if (totalCost != null) {
+            args.putDouble("total_cost", totalCost);
+        }
         fragment.setArguments(args);
         return fragment;
     }
@@ -71,30 +75,74 @@ public class StopParkingFragment extends Fragment {
             startTime = getArguments().getString("start_time");
             plate = getArguments().getString("plate");
             email = getArguments().getString("email");
-            String priceStr = getArguments().getString("spot_price", "1.5");
-            try {
-                pricePerHour = Double.parseDouble(priceStr);
-            } catch (Exception e) {
-                pricePerHour = 1.5;
+            isPaymentPhase = getArguments().getBoolean("payment_phase", false);
+
+            String spotPriceStr = getArguments().getString("spot_price");
+            if (spotPriceStr == null || spotPriceStr.isEmpty()) {
+                throw new IllegalArgumentException("Το κόστος θέσης στάθμευσης (spot_price) πρέπει να δοθεί.");
+            }
+            pricePerHour = Double.parseDouble(spotPriceStr);
+
+            if (isPaymentPhase) {
+                totalCost = getArguments().getDouble("total_cost", 0.0);
+                showPaymentOptionsUI(view);
+                return;
             }
         }
 
+        // Εμφάνιση στοιχείων χωρίς payment options (αρχική φάση)
+        showBasicUI(view);
+    }
+
+    private void showBasicUI(View view) {
         TextView textSector = view.findViewById(R.id.text_sector);
         TextView textAddress = view.findViewById(R.id.text_address);
         TextView textStartTime = view.findViewById(R.id.text_start_time);
         TextView textPlate = view.findViewById(R.id.text_plate);
         TextView textEmail = view.findViewById(R.id.text_email);
-        paymentAmount = view.findViewById(R.id.text_payment_amount);
+
         Button finishButton = view.findViewById(R.id.button_finish);
         Button payWithCard = view.findViewById(R.id.button_pay_with_card);
         Button payWithWallet = view.findViewById(R.id.button_pay_with_wallet);
-
+        paymentAmount = view.findViewById(R.id.text_payment_amount);
         walletBalanceView = view.findViewById(R.id.text_wallet_balance);
-        walletBalanceView.setVisibility(View.GONE);
 
+        // Εμφάνιση βασικών στοιχείων
+        textSector.setText("Θέση: " + sector);
+        textAddress.setText("Διεύθυνση: " + address);
+        textStartTime.setText("Ώρα Έναρξης: " + startTime);
+        textPlate.setText("Πινακίδα: " + plate);
+        textEmail.setText("Email: " + email);
+
+        // Αρχικά κρυφά
+        paymentAmount.setVisibility(View.GONE);
+        walletBalanceView.setVisibility(View.GONE);
         payWithCard.setVisibility(View.GONE);
         payWithWallet.setVisibility(View.GONE);
-        paymentAmount.setVisibility(View.GONE);
+        finishButton.setVisibility(View.VISIBLE);
+
+        finishButton.setOnClickListener(v -> {
+            endTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+            totalCost = calculateCost(startTime, endTime, pricePerHour);
+            showPaymentOptionsUI(view);
+        });
+
+        if (getActivity() != null) {
+            AppCompatActivity activity = (AppCompatActivity) getActivity();
+            if (activity.getSupportActionBar() != null) {
+                activity.getSupportActionBar().setTitle("Τέλος Στάθμευσης");
+                activity.getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+            }
+        }
+    }
+
+    private void showPaymentOptionsUI(View view) {
+        // Εμφάνιση ΠΑΝΤΑ ΟΛΩΝ των στοιχείων!
+        TextView textSector = view.findViewById(R.id.text_sector);
+        TextView textAddress = view.findViewById(R.id.text_address);
+        TextView textStartTime = view.findViewById(R.id.text_start_time);
+        TextView textPlate = view.findViewById(R.id.text_plate);
+        TextView textEmail = view.findViewById(R.id.text_email);
 
         textSector.setText("Θέση: " + sector);
         textAddress.setText("Διεύθυνση: " + address);
@@ -102,30 +150,36 @@ public class StopParkingFragment extends Fragment {
         textPlate.setText("Πινακίδα: " + plate);
         textEmail.setText("Email: " + email);
 
-        finishButton.setOnClickListener(v -> {
-            endTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-            totalCost = calculateCost(startTime, endTime, pricePerHour);
+        Button finishButton = view.findViewById(R.id.button_finish);
+        Button payWithCard = view.findViewById(R.id.button_pay_with_card);
+        Button payWithWallet = view.findViewById(R.id.button_pay_with_wallet);
+        paymentAmount = view.findViewById(R.id.text_payment_amount);
+        walletBalanceView = view.findViewById(R.id.text_wallet_balance);
 
-            paymentAmount.setText(String.format("Ποσό Πληρωμής: %.2f €", totalCost));
-            paymentAmount.setVisibility(View.VISIBLE);
+        // Εμφανίζουμε ποσά και κουμπιά πληρωμής
+        paymentAmount.setText(String.format("Ποσό Πληρωμής: %.2f €", totalCost));
+        paymentAmount.setVisibility(View.VISIBLE);
 
-            finishButton.setVisibility(View.GONE); // Κρύψε το "Ολοκλήρωση στάθμευσης"
-            payWithCard.setVisibility(View.VISIBLE);
-            payWithWallet.setVisibility(View.VISIBLE);
+        finishButton.setVisibility(View.GONE);
+        payWithCard.setVisibility(View.VISIBLE);
+        payWithWallet.setVisibility(View.VISIBLE);
 
-            // Εμφανίζουμε το υπόλοιπο wallet
-            walletBalance = getWalletBalance();
-            walletBalanceView.setText(String.format("Υπόλοιπο Wallet: %.2f €", walletBalance));
-            walletBalanceView.setVisibility(View.VISIBLE);
-        });
+        // Επανενεργοποιούμε πάντα τα κουμπιά
+        payWithCard.setEnabled(true);
+        payWithWallet.setEnabled(true);
+
+        walletBalance = getWalletBalance();
+        walletBalanceView.setText(String.format("Υπόλοιπο Wallet: %.2f €", walletBalance));
+        walletBalanceView.setVisibility(View.VISIBLE);
 
         payWithCard.setOnClickListener(v -> {
-            // Μπορείς να προσθέσεις το ποσό στα arguments αν θέλεις
-            PaymentFragment paymentFragment = PaymentFragment.newInstance(sector, startTime, plate, email /*, String.valueOf(totalCost)*/);
+            PaymentFragment paymentFragment = PaymentFragment.newInstance(
+                    sector, address, startTime, plate, email, totalCost, String.valueOf(pricePerHour)
+            );
             requireActivity().getSupportFragmentManager()
                     .beginTransaction()
                     .replace(R.id.fragment_container, paymentFragment)
-                    .addToBackStack(null)
+                    .addToBackStack("stop_parking")
                     .commit();
         });
 
@@ -137,14 +191,12 @@ public class StopParkingFragment extends Fragment {
                 payWithCard.setEnabled(false);
                 payWithWallet.setEnabled(false);
 
-                // Καθαρίζει όλο το fragment back stack -> επιστρέφει στον χάρτη
                 requireActivity().getSupportFragmentManager()
                         .popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
             } else {
                 Toast.makeText(getContext(), "Ανεπαρκές υπόλοιπο στο wallet.", Toast.LENGTH_LONG).show();
             }
         });
-
 
         if (getActivity() != null) {
             AppCompatActivity activity = (AppCompatActivity) getActivity();
@@ -156,7 +208,6 @@ public class StopParkingFragment extends Fragment {
     }
 
     private double getWalletBalance() {
-        // Από SharedPreferences
         return requireActivity().getSharedPreferences("wallet_prefs", Context.MODE_PRIVATE).getFloat("balance", 0f);
     }
 
@@ -173,21 +224,11 @@ public class StopParkingFragment extends Fragment {
 
             long seconds = Duration.between(start, end).getSeconds();
             double hours = seconds / 3600.0;
-            double hoursRoundedUp = Math.max(1, Math.ceil(hours)); // ΠΑΝΤΑ τουλάχιστον 1 ώρα
-
+            double hoursRoundedUp = Math.max(1, Math.ceil(hours));
             return hoursRoundedUp * costPerHour;
         } catch (Exception e) {
             e.printStackTrace();
-            return costPerHour; // Αν αποτύχει, τουλάχιστον 1 ώρα
+            return 0.0;
         }
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            getParentFragmentManager().popBackStack();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
     }
 }
