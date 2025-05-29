@@ -1,4 +1,3 @@
-// MapFragment.java (τελικός, πλήρως λειτουργικός)
 package com.example.ergasiaandroid.Fragments;
 
 import android.location.Address;
@@ -12,6 +11,7 @@ import android.widget.*;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
 import com.example.ergasiaandroid.ParkingSpot;
@@ -41,22 +41,35 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(com.example.ergasiaandroid.R.layout.fragment_map, container, false);
+        View view = inflater.inflate(R.layout.fragment_map, container, false);
 
         SupportMapFragment mapFragment = SupportMapFragment.newInstance();
         getChildFragmentManager().beginTransaction()
-                .replace(com.example.ergasiaandroid.R.id.map_fragment, mapFragment)
+                .replace(R.id.map_fragment, mapFragment)
                 .commit();
 
         mapFragment.getMapAsync(this);
 
-        searchBar = view.findViewById(com.example.ergasiaandroid.R.id.searchBar);
-        filterSpinner = view.findViewById(com.example.ergasiaandroid.R.id.availabilityFilter);
-        parkingList = view.findViewById(com.example.ergasiaandroid.R.id.parkingList);
-        btnZoomIn = view.findViewById(com.example.ergasiaandroid.R.id.btnZoomIn);
-        btnZoomOut = view.findViewById(com.example.ergasiaandroid.R.id.btnZoomOut);
+        searchBar = view.findViewById(R.id.searchBar);
+        filterSpinner = view.findViewById(R.id.availabilityFilter);
+        parkingList = view.findViewById(R.id.parkingList);
+        btnZoomIn = view.findViewById(R.id.btnZoomIn);
+        btnZoomOut = view.findViewById(R.id.btnZoomOut);
 
         return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        // Ενημέρωση τίτλου κάθε φορά που εμφανίζεται το fragment
+        if (getActivity() != null) {
+            AppCompatActivity activity = (AppCompatActivity) getActivity();
+            if (activity.getSupportActionBar() != null) {
+                activity.getSupportActionBar().setTitle("Χάρτης Στάθμευσης");
+                activity.getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+            }
+        }
     }
 
     @Override
@@ -64,9 +77,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         mMap = googleMap;
         allSpots = createAllSpots();
 
-        LatLng initial = new LatLng(21.3069, -157.8583); // Χονολουλού, Χαβάη
+        LatLng initial = new LatLng(21.3069, -157.8583); // Ενδεικτική αρχική θέση
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(initial, 15));
-
 
         showAllParkingSpots("Όλες");
 
@@ -74,7 +86,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         btnZoomOut.setOnClickListener(v -> mMap.animateCamera(CameraUpdateFactory.zoomOut()));
 
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(requireContext(),
-                com.example.ergasiaandroid.R.array.availability_options, android.R.layout.simple_spinner_item);
+                R.array.availability_options, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         filterSpinner.setAdapter(adapter);
 
@@ -165,7 +177,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                     (filter.equals("Κατειλημμένες") && !spot.isAvailable)) {
 
                 Bitmap iconBitmap = BitmapFactory.decodeResource(getResources(),
-                        spot.isAvailable ? com.example.ergasiaandroid.R.drawable.marker_green : R.drawable.marker_red);
+                        spot.isAvailable ? R.drawable.marker_green : R.drawable.marker_red);
                 Bitmap scaled = Bitmap.createScaledBitmap(iconBitmap, 100, 150, false);
                 BitmapDescriptor icon = BitmapDescriptorFactory.fromBitmap(scaled);
 

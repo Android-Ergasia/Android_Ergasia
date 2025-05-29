@@ -56,10 +56,17 @@ public class MapsActivity extends AppCompatActivity {
 
     public void toggleMainMapViews(boolean b) {
         int visibility = b ? View.VISIBLE : View.GONE;
-        findViewById(R.id.searchBar).setVisibility(visibility);
-        findViewById(R.id.availabilityFilter).setVisibility(visibility);
-        findViewById(R.id.parkingList).setVisibility(visibility);
-        findViewById(R.id.btnZoomIn).setVisibility(visibility);
-        findViewById(R.id.btnZoomOut).setVisibility(visibility);
+        View searchBar = findViewById(R.id.searchBar);
+        View availabilityFilter = findViewById(R.id.availabilityFilter);
+        View parkingList = findViewById(R.id.parkingList);
+        View btnZoomIn = findViewById(R.id.btnZoomIn);
+        View btnZoomOut = findViewById(R.id.btnZoomOut);
+
+        if (searchBar != null) searchBar.setVisibility(visibility);
+        if (availabilityFilter != null) availabilityFilter.setVisibility(visibility);
+        if (parkingList != null) parkingList.setVisibility(visibility);
+        if (btnZoomIn != null) btnZoomIn.setVisibility(visibility);
+        if (btnZoomOut != null) btnZoomOut.setVisibility(visibility);
     }
+
 }

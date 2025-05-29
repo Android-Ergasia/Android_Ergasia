@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:gravity="center_horizontal"
-    android:padding="16dp"
+    android:padding="24dp"
     tools:context=".Fragments.WalletFragment">
 
     <TextView
@@ -25,6 +25,7 @@
         android:text="€ 0.00"
         android:textSize="40sp"
         android:textColor="@android:color/holo_orange_dark"
+        android:textStyle="bold"
         android:layout_marginTop="8dp" />
 
     <TextView
@@ -51,6 +52,8 @@
             android:minWidth="0dp"
             android:background="@drawable/rounded_button"
             android:text="10 €"
+            android:textSize="18sp"
+            android:textColor="@android:color/white"
             android:layout_margin="8dp" />
 
         <Button
@@ -61,6 +64,8 @@
             android:minWidth="0dp"
             android:background="@drawable/rounded_button"
             android:text="20 €"
+            android:textSize="18sp"
+            android:textColor="@android:color/white"
             android:layout_margin="8dp" />
 
         <Button
@@ -71,6 +76,8 @@
             android:minWidth="0dp"
             android:background="@drawable/rounded_button"
             android:text="50 €"
+            android:textSize="18sp"
+            android:textColor="@android:color/white"
             android:layout_margin="8dp" />
     </LinearLayout>
 

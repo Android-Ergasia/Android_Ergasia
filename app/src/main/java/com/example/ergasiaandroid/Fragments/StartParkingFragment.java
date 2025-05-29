@@ -130,23 +130,41 @@ public class StartParkingFragment extends Fragment {
         return Patterns.EMAIL_ADDRESS.matcher(email).matches();
     }
 
+//    @Override
+//    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+//        if (item.getItemId() == android.R.id.home) {
+//            if (getActivity() != null) {
+//                SpotChoiceInfoBottomSheet bottomSheet = SpotChoiceInfoBottomSheet.newInstance(address, sector, price);
+//                bottomSheet.show(getParentFragmentManager(), "spot_choice_info");
+//
+//                if (getActivity() instanceof MapsActivity) {
+//                    ((MapsActivity) getActivity()).toggleMainMapViews(true);
+//                }
+//
+//                getParentFragmentManager().popBackStack();
+//            }
+//            return true;
+//        }
+//        return super.onOptionsItemSelected(item);
+//    }
+
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
             if (getActivity() != null) {
                 SpotChoiceInfoBottomSheet bottomSheet = SpotChoiceInfoBottomSheet.newInstance(address, sector, price);
                 bottomSheet.show(getParentFragmentManager(), "spot_choice_info");
-
-                if (getActivity() instanceof MapsActivity) {
-                    ((MapsActivity) getActivity()).toggleMainMapViews(true);
-                }
-
+                // ΑΦΑΙΡΕΣΕ αυτή τη γραμμή:
+                // if (getActivity() instanceof MapsActivity) {
+                //     ((MapsActivity) getActivity()).toggleMainMapViews(true);
+                // }
                 getParentFragmentManager().popBackStack();
             }
             return true;
         }
         return super.onOptionsItemSelected(item);
     }
+
 
     @Override
     public void onDestroyView() {
