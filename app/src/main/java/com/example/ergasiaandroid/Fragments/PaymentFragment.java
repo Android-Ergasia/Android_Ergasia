@@ -101,11 +101,16 @@ public class PaymentFragment extends Fragment {
 
         payButton.setOnClickListener(v -> {
             if (validateCard(cardNumber, expiryMonth, expiryYear, cvv, cardHolder)) {
-                Toast toast = Toast.makeText(getContext(), "Πληρωμή επιτυχής!", Toast.LENGTH_LONG);
-                toast.setGravity(Gravity.CENTER, 0, 0);
-                toast.show();
+                Toast.makeText(getContext(), "Πληρωμή επιτυχής!", Toast.LENGTH_SHORT).show();
+
+                // Επιστροφή στον χάρτη
+                requireActivity().getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.fragment_container, new MapFragment())
+                        .commit();
             }
         });
+
 
         cancelButton.setOnClickListener(v -> {
             // Επιστροφή στο StopParkingFragment με τα σωστά δεδομένα
