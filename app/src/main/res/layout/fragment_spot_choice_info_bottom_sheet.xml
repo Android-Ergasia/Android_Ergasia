@@ -11,15 +11,17 @@
         android:layout_height="wrap_content"
         android:text="Διεύθυνση:"
         android:textSize="16sp"
-        android:paddingBottom="8dp" />
+        android:paddingBottom="8dp"
+        android:layout_marginBottom="0dp" />
 
     <TextView
         android:id="@+id/text_spot_number"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Αριθμός Θέσης:"
+        android:text="Θέση:"
         android:textSize="16sp"
-        android:paddingBottom="8dp" />
+        android:paddingBottom="8dp"
+        android:layout_marginBottom="0dp" />
 
     <TextView
         android:id="@+id/text_price_per_hour"
@@ -27,7 +29,8 @@
         android:layout_height="wrap_content"
         android:text="Τιμή/ώρα:"
         android:textSize="16sp"
-        android:paddingBottom="16dp" />
+        android:paddingBottom="16dp"
+        android:layout_marginBottom="0dp" />
 
     <Button
         android:id="@+id/button_start_parking"

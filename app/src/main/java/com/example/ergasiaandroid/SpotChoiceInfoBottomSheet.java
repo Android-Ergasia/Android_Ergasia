@@ -1,6 +1,9 @@
 package com.example.ergasiaandroid;
 
 import android.os.Bundle;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.style.StyleSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,7 +22,6 @@ public class SpotChoiceInfoBottomSheet extends BottomSheetDialogFragment {
     private String pricePerHour;
     private String spotName;
 
-    // Περνάμε ΚΑΙ το spotName πλέον!
     public static SpotChoiceInfoBottomSheet newInstance(String address, String spotName, String pricePerHour) {
         SpotChoiceInfoBottomSheet fragment = new SpotChoiceInfoBottomSheet();
         Bundle args = new Bundle();
@@ -47,26 +49,19 @@ public class SpotChoiceInfoBottomSheet extends BottomSheetDialogFragment {
         TextView spotNumberText = view.findViewById(R.id.text_spot_number);
         Button startButton = view.findViewById(R.id.button_start_parking);
 
-        addressText.setText("Διεύθυνση: " + address);
-        priceText.setText("Τιμή/ώρα: " + pricePerHour);
-        spotNumberText.setText("Θέση: " + spotName);
+        addressText.setText(makeStyledLabelValue("Διεύθυνση: ", address));
+        priceText.setText(makeStyledLabelValue("Τιμή/ώρα: ", pricePerHour));
+        spotNumberText.setText(makeStyledLabelValue("Θέση: ", spotName));
 
         startButton.setOnClickListener(v -> {
             if (getActivity() != null) {
-                // Κρύψε όλα τα views του MapActivity
                 if (getActivity() instanceof MapsActivity) {
                     ((MapsActivity) getActivity()).toggleMainMapViews(false);
                 }
 
-                // Κάνε ορατό το fragment_container
                 View fragmentContainer = getActivity().findViewById(R.id.fragment_container);
                 fragmentContainer.setVisibility(View.VISIBLE);
 
-                // Κρύψε το χάρτη
-//                View mapView = getActivity().findViewById(R.id.map);
-//                mapView.setVisibility(View.GONE);
-
-                // Περνάμε ως sector το spotName, ως address τη διεύθυνση (και την τιμή)
                 StartParkingFragment fragment = StartParkingFragment.newInstance(spotName, address, pricePerHour);
                 getParentFragmentManager()
                         .beginTransaction()
@@ -79,5 +74,17 @@ public class SpotChoiceInfoBottomSheet extends BottomSheetDialogFragment {
         });
 
         return view;
+    }
+
+    // Helper function to bold only the label
+    private SpannableString makeStyledLabelValue(String label, String value) {
+        SpannableString spannable = new SpannableString(label + value);
+        spannable.setSpan(
+                new StyleSpan(android.graphics.Typeface.BOLD),
+                0,
+                label.length(),
+                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+        );
+        return spannable;
     }
 }

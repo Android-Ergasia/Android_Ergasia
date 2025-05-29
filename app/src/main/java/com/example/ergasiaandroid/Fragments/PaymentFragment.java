@@ -1,7 +1,10 @@
 package com.example.ergasiaandroid.Fragments;
 
 import android.os.Bundle;
+import android.text.Spannable;
+import android.text.SpannableString;
 import android.text.TextUtils;
+import android.text.style.StyleSpan;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -70,6 +73,7 @@ public class PaymentFragment extends Fragment {
             setHasOptionsMenu(true);
         }
 
+        // Πεδία φόρμας
         TextInputEditText cardNumber = view.findViewById(R.id.cardNumber);
         TextInputEditText expiryMonth = view.findViewById(R.id.expiryMonth);
         TextInputEditText expiryYear = view.findViewById(R.id.expiryYearEdit);
@@ -78,20 +82,22 @@ public class PaymentFragment extends Fragment {
         Button payButton = view.findViewById(R.id.payButton);
         Button cancelButton = view.findViewById(R.id.cancelButton);
         TextView paymentAmount = view.findViewById(R.id.paymentAmount);
-        TextView parkingInfo = view.findViewById(R.id.parkingInfo);
+
+        // Κάρτα πληροφοριών (όπως στο StopParkingFragment)
+        TextView textSector = view.findViewById(R.id.text_sector);
+        TextView textAddress = view.findViewById(R.id.text_address);
+        TextView textStartTime = view.findViewById(R.id.text_start_time);
+        TextView textPlate = view.findViewById(R.id.text_plate);
+        TextView textEmail = view.findViewById(R.id.text_email);
+
+        textSector.setText(makeStyledLabelValue("Θέση: ", sector));
+        textAddress.setText(makeStyledLabelValue("Διεύθυνση: ", address));
+        textStartTime.setText(makeStyledLabelValue("Ώρα έναρξης: ", startTime));
+        textPlate.setText(makeStyledLabelValue("Πινακίδα: ", plate));
+        textEmail.setText(makeStyledLabelValue("Email: ", email));
 
         String costText = String.format(Locale.getDefault(), "%.2f €", amount);
         paymentAmount.setText("Πληρωτέο Ποσό: " + costText);
-
-        // Εμφανίζει ΟΛΑ τα στοιχεία που περνάς:
-        StringBuilder info = new StringBuilder();
-        info.append("Θέση: ").append(sector).append("\n")
-                .append("Διεύθυνση: ").append(address).append("\n")
-                .append("Ώρα έναρξης: ").append(startTime).append("\n")
-                .append("Πινακίδα: ").append(plate).append("\n")
-                .append("Email: ").append(email);
-
-        parkingInfo.setText(info.toString());
 
         payButton.setOnClickListener(v -> {
             if (validateCard(cardNumber, expiryMonth, expiryYear, cvv, cardHolder)) {
@@ -143,7 +149,7 @@ public class PaymentFragment extends Fragment {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
-            // Επιστροφή στο StopParkingFragment με τις παραμέτρους και την σωστή τιμή
+            // Επιστροφή στο StopParkingFragment με τις παραμέτρους και τη σωστή τιμή
             StopParkingFragment stopParkingFragment = StopParkingFragment.newInstance(
                     sector, address, startTime, plate, email,
                     spotPriceStr, true, amount);
@@ -156,5 +162,17 @@ public class PaymentFragment extends Fragment {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    // Βοηθητική μέθοδος για bold label και κανονικό value
+    private SpannableString makeStyledLabelValue(String label, String value) {
+        SpannableString spannable = new SpannableString(label + value);
+        spannable.setSpan(
+                new StyleSpan(android.graphics.Typeface.BOLD),
+                0,
+                label.length(),
+                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+        );
+        return spannable;
     }
 }

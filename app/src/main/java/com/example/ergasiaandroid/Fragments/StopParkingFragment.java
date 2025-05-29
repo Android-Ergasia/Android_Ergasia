@@ -2,6 +2,9 @@ package com.example.ergasiaandroid.Fragments;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.style.StyleSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -100,6 +103,7 @@ public class StopParkingFragment extends Fragment {
         TextView textStartTime = view.findViewById(R.id.text_start_time);
         TextView textPlate = view.findViewById(R.id.text_plate);
         TextView textEmail = view.findViewById(R.id.text_email);
+        TextView finishInstruction = view.findViewById(R.id.finish_instruction);
 
         Button finishButton = view.findViewById(R.id.button_finish);
         Button payWithCard = view.findViewById(R.id.button_pay_with_card);
@@ -107,12 +111,12 @@ public class StopParkingFragment extends Fragment {
         paymentAmount = view.findViewById(R.id.text_payment_amount);
         walletBalanceView = view.findViewById(R.id.text_wallet_balance);
 
-        // Εμφάνιση βασικών στοιχείων
-        textSector.setText("Θέση: " + sector);
-        textAddress.setText("Διεύθυνση: " + address);
-        textStartTime.setText("Ώρα Έναρξης: " + startTime);
-        textPlate.setText("Πινακίδα: " + plate);
-        textEmail.setText("Email: " + email);
+        // Εμφάνιση με bold label και κανονικό value
+        textSector.setText(makeStyledLabelValue("Θέση: ", sector));
+        textAddress.setText(makeStyledLabelValue("Διεύθυνση: ", address));
+        textStartTime.setText(makeStyledLabelValue("Ώρα Έναρξης: ", startTime));
+        textPlate.setText(makeStyledLabelValue("Πινακίδα: ", plate));
+        textEmail.setText(makeStyledLabelValue("Email: ", email));
 
         // Αρχικά κρυφά
         paymentAmount.setVisibility(View.GONE);
@@ -120,10 +124,12 @@ public class StopParkingFragment extends Fragment {
         payWithCard.setVisibility(View.GONE);
         payWithWallet.setVisibility(View.GONE);
         finishButton.setVisibility(View.VISIBLE);
+        finishInstruction.setVisibility(View.VISIBLE);
 
         finishButton.setOnClickListener(v -> {
             endTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
             totalCost = calculateCost(startTime, endTime, pricePerHour);
+            finishInstruction.setVisibility(View.GONE); // Κρύβει την οδηγία μόλις πατήσεις το κουμπί
             showPaymentOptionsUI(view);
         });
 
@@ -144,11 +150,11 @@ public class StopParkingFragment extends Fragment {
         TextView textPlate = view.findViewById(R.id.text_plate);
         TextView textEmail = view.findViewById(R.id.text_email);
 
-        textSector.setText("Θέση: " + sector);
-        textAddress.setText("Διεύθυνση: " + address);
-        textStartTime.setText("Ώρα Έναρξης: " + startTime);
-        textPlate.setText("Πινακίδα: " + plate);
-        textEmail.setText("Email: " + email);
+        textSector.setText(makeStyledLabelValue("Θέση: ", sector));
+        textAddress.setText(makeStyledLabelValue("Διεύθυνση: ", address));
+        textStartTime.setText(makeStyledLabelValue("Ώρα Έναρξης: ", startTime));
+        textPlate.setText(makeStyledLabelValue("Πινακίδα: ", plate));
+        textEmail.setText(makeStyledLabelValue("Email: ", email));
 
         Button finishButton = view.findViewById(R.id.button_finish);
         Button payWithCard = view.findViewById(R.id.button_pay_with_card);
@@ -205,6 +211,18 @@ public class StopParkingFragment extends Fragment {
                 activity.getSupportActionBar().setDisplayHomeAsUpEnabled(false);
             }
         }
+    }
+
+    // Βοηθητική μέθοδος για bold label και κανονικό value
+    private SpannableString makeStyledLabelValue(String label, String value) {
+        SpannableString spannable = new SpannableString(label + value);
+        spannable.setSpan(
+                new StyleSpan(android.graphics.Typeface.BOLD),
+                0,
+                label.length(),
+                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+        );
+        return spannable;
     }
 
     private double getWalletBalance() {

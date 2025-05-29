@@ -1,189 +1,221 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="true"
-    android:background="@android:color/white"
-    tools:context=".Fragments.PaymentFragment">
+    android:background="@android:color/white">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <LinearLayout
+        android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="16dp">
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp"
+        android:paddingTop="24dp"
+        android:paddingBottom="24dp">
 
-
-
-
-    <!-- Τίτλος -->
-    <TextView
-        android:id="@+id/paymentTitle"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="@string/payment_title"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        android:textAlignment="center"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-    <!-- Πληροφορίες Στάθμευσης -->
-    <TextView
-        android:id="@+id/parkingInfo"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="Πληρωμή Στάθμευσης - Θεσ/νίκη:"
-        android:textSize="16sp"
-        android:padding="16dp"
-        android:background="@drawable/border"
-        android:layout_marginTop="12dp"
-        app:layout_constraintTop_toBottomOf="@id/paymentTitle"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-
-
-
-    <!-- Ποσό πληρωμής -->
-    <TextView
-        android:id="@+id/paymentAmount"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="@string/amount"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        app:layout_constraintTop_toBottomOf="@id/parkingInfo"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="12dp"
-        android:padding="16dp"
-        android:background="@drawable/border"/>
-
-    <!-- Αριθμός Κάρτας -->
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/cardNumberLayout"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:hint="@string/card_number"
-        app:layout_constraintTop_toBottomOf="@id/paymentAmount"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="16dp">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/cardNumber"
+        <!-- Τίτλος -->
+        <TextView
+            android:id="@+id/paymentTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="number" />
-    </com.google.android.material.textfield.TextInputLayout>
+            android:text="Πληρωμή Στάθμευσης"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:layout_marginBottom="8dp" />
 
-    <!-- Ημερομηνία Λήξης - Μήνας -->
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/expiryMonthLayout"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:hint="@string/expiry_month"
-        android:layout_marginTop="8dp"
-        app:layout_constraintTop_toBottomOf="@id/cardNumberLayout"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/expiryYearLayout"
-        android:layout_marginEnd="8dp">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/expiryMonth"
+        <!-- Κάρτα με πληροφορίες -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/payment_info_card"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:inputType="number" />
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <!-- Ημερομηνία Λήξης - Έτος -->
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/expiryYearLayout"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:hint="@string/expiry_year"
-        android:layout_marginTop="8dp"
-        app:layout_constraintTop_toBottomOf="@id/cardNumberLayout"
-        app:layout_constraintStart_toEndOf="@id/expiryMonthLayout"
-        app:layout_constraintEnd_toStartOf="@id/cvvLayout"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/expiryYearEdit"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:inputType="number" />
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <!-- CVV -->
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/cvvLayout"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:hint="@string/cvv"
-        android:layout_marginTop="8dp"
-        app:layout_constraintTop_toBottomOf="@id/cardNumberLayout"
-        app:layout_constraintStart_toEndOf="@id/expiryYearLayout"
-        app:layout_constraintEnd_toEndOf="parent">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/cvv"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:inputType="numberPassword" />
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <!-- Όνομα Κατόχου -->
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/cardHolderLayout"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:hint="@string/hint_card_holder"
-        android:layout_marginTop="8dp"
-        app:layout_constraintTop_toBottomOf="@id/expiryMonthLayout"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/cardHolder"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:inputType="textPersonName" />
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <!-- ΠΛΗΡΩΜΗ -->
-        <Button
-            android:id="@+id/payButton"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:layout_marginEnd="8dp"
-            android:backgroundTint="@color/paybtncolor"
-            android:text="@string/pay"
-            android:textAllCaps="true"
-            app:layout_constraintEnd_toStartOf="@id/cancelButton"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/cardHolderLayout" />
-
-    <!-- ΑΚΥΡΩΣΗ -->
-        <Button
-            android:id="@+id/cancelButton"
-            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:layout_marginTop="16dp"
-            android:backgroundTint="@color/paybtncolor"
-            android:text="@string/cancel"
-            android:textAllCaps="true"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/payButton"
-            app:layout_constraintTop_toBottomOf="@id/cardHolderLayout" />
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="4dp"
+            app:cardBackgroundColor="@android:color/white">
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:id="@+id/text_sector"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Θέση: "
+                    android:textSize="16sp"
+                    android:layout_marginBottom="8dp"/>
+
+                <TextView
+                    android:id="@+id/text_address"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Διεύθυνση: "
+                    android:textSize="16sp"
+                    android:layout_marginBottom="8dp"/>
+
+                <TextView
+                    android:id="@+id/text_start_time"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Ώρα έναρξης: "
+                    android:textSize="16sp"
+                    android:layout_marginBottom="8dp"/>
+
+                <TextView
+                    android:id="@+id/text_plate"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Πινακίδα: "
+                    android:textSize="16sp"
+                    android:layout_marginBottom="8dp"/>
+
+                <TextView
+                    android:id="@+id/text_email"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Email: "
+                    android:textSize="16sp"
+                    android:layout_marginBottom="0dp"/>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Κάρτα με Πληρωτέο Ποσό -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/payment_amount_card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="4dp"
+            app:cardBackgroundColor="@android:color/white">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:id="@+id/paymentAmount"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Πληρωτέο Ποσό: 0.00 €"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:gravity="center" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Πεδίο Κάρτας -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/cardNumberLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Αριθμός κάρτας"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/cardNumber"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="number" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/expiryMonthLayout"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginEnd="8dp"
+                android:hint="Μήνας λήξης">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/expiryMonth"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="number" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/expiryYearLayout"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="8dp"
+                android:hint="Έτος λήξης">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/expiryYearEdit"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="number" />
+            </com.google.android.material.textfield.TextInputLayout>
+        </LinearLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/cvvLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="CVV"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/cvv"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="numberPassword" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/cardHolderLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Όνομα κατόχου"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/cardHolder"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textPersonName" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Κουμπιά -->
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp">
+
+            <Button
+                android:id="@+id/payButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Πληρωμή"
+                android:backgroundTint="@color/paybtncolor"
+                android:textColor="@android:color/white"/>
+
+            <Button
+                android:id="@+id/cancelButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="8dp"
+                android:text="Ακύρωση"
+                android:backgroundTint="@color/paybtncolor"
+                android:textColor="@android:color/white"/>
+        </LinearLayout>
+    </LinearLayout>
 </ScrollView>
-
-
