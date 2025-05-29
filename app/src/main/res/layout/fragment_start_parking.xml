@@ -1,49 +1,109 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="true">
+    android:background="@android:color/white">
 
     <LinearLayout
         android:id="@+id/start_parking_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="24dp"
-        android:background="@android:color/white">
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp"
+        android:paddingTop="24dp"
+        android:paddingBottom="24dp">
 
-        <!-- Θέση -->
+        <!-- Τίτλος -->
         <TextView
-            android:id="@+id/text_sector"
+            android:id="@+id/parking_info_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Θέση: Parking 1"
-            android:textSize="16sp"
+            android:text="Πληροφορίες Στάθμευσης"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:gravity="center"
             android:layout_marginBottom="8dp" />
 
-        <!-- Διεύθυνση -->
-        <TextView
-            android:id="@+id/text_address"
+        <!-- Κάρτα με πληροφορίες -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/parking_info_card"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Διεύθυνση: "
-            android:textSize="16sp"
-            android:layout_marginBottom="16dp" />
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="24dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="4dp"
+            app:cardBackgroundColor="@android:color/white">
 
-        <!-- Ώρα έναρξης -->
-        <TextView
-            android:id="@+id/text_start_time"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Ώρα έναρξης: 12:00"
-            android:textSize="16sp"
-            android:layout_marginBottom="16dp" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <!-- Θέση -->
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Θέση:"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/text_sector"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Parking 1"
+                    android:textSize="16sp"
+                    android:textStyle="normal"
+                    android:layout_marginBottom="8dp" />
+
+                <!-- Διεύθυνση -->
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Διεύθυνση:"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/text_address"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Εγνατία 123, Θεσσαλονίκη"
+                    android:textSize="16sp"
+                    android:textStyle="normal"
+                    android:layout_marginBottom="8dp" />
+
+                <!-- Ώρα έναρξης -->
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Ώρα έναρξης:"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/text_start_time"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="12:00"
+                    android:textSize="16sp"
+                    android:textStyle="normal"
+                    android:layout_marginBottom="8dp" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
         <!-- Πινακίδα -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
             android:layout_marginBottom="16dp">
 
             <TextView
@@ -51,6 +111,7 @@
                 android:layout_height="wrap_content"
                 android:text="Πινακίδα:"
                 android:textSize="16sp"
+                android:textStyle="bold"
                 android:layout_gravity="center_vertical" />
 
             <EditText
@@ -60,9 +121,11 @@
                 android:layout_weight="1"
                 android:layout_marginStart="12dp"
                 android:hint="π.χ. ΙΚΑ1234"
+                android:minHeight="48dp"
                 android:inputType="textCapCharacters"
                 android:backgroundTint="@android:color/darker_gray"
-                android:textColor="@android:color/black" />
+                android:textColor="@android:color/black"
+                android:focusableInTouchMode="true" />
         </LinearLayout>
 
         <!-- Email -->
@@ -70,13 +133,16 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginBottom="24dp">
+            android:layout_marginBottom="24dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Email:"
                 android:textSize="16sp"
+                android:textStyle="bold"
                 android:layout_gravity="center_vertical" />
 
             <EditText
@@ -88,7 +154,9 @@
                 android:hint="π.χ. user@example.com"
                 android:inputType="textEmailAddress"
                 android:backgroundTint="@android:color/darker_gray"
-                android:textColor="@android:color/black" />
+                android:textColor="@android:color/black"
+                android:minHeight="48dp"
+                android:focusableInTouchMode="true" />
         </LinearLayout>
 
         <!-- Κουμπί -->
@@ -98,7 +166,8 @@
             android:layout_height="wrap_content"
             android:text="Έναρξη Στάθμευσης"
             android:backgroundTint="@color/design_default_color_primary"
-            android:textColor="@android:color/white" />
-
+            android:textColor="@android:color/white"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp" />
     </LinearLayout>
 </ScrollView>
