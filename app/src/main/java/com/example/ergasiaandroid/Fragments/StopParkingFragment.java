@@ -146,7 +146,7 @@ public class StopParkingFragment extends Fragment {
             AppCompatActivity activity = (AppCompatActivity) getActivity();
             if (activity.getSupportActionBar() != null) {
                 activity.getSupportActionBar().setTitle("Τέλος Στάθμευσης");
-                activity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+                activity.getSupportActionBar().setDisplayHomeAsUpEnabled(false);
             }
         }
     }

@@ -6,6 +6,7 @@ import android.view.View;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
+import com.example.ergasiaandroid.Fragments.MapFragment;
 import com.example.ergasiaandroid.Fragments.StatisticsFragment;
 import com.example.ergasiaandroid.Fragments.WalletFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
