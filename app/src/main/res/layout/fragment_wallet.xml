@@ -7,7 +7,7 @@
     android:orientation="vertical"
     android:gravity="center_horizontal"
     android:padding="16dp"
-    tools:context=".WalletFragment">
+    tools:context=".Fragments.WalletFragment">
 
     <TextView
         android:id="@+id/balance_label"
@@ -16,7 +16,7 @@
         android:text="Διαθέσιμο υπόλοιπο"
         android:textSize="18sp"
         android:textColor="@android:color/darker_gray"
-        android:layout_marginTop="32dp"/>
+        android:layout_marginTop="32dp" />
 
     <TextView
         android:id="@+id/balance_amount"
@@ -25,7 +25,7 @@
         android:text="€ 0.00"
         android:textSize="40sp"
         android:textColor="@android:color/holo_orange_dark"
-        android:layout_marginTop="8dp"/>
+        android:layout_marginTop="8dp" />
 
     <TextView
         android:id="@+id/top_up_label"
@@ -34,7 +34,7 @@
         android:text="Αύξηση υπολοίπου"
         android:textSize="18sp"
         android:textColor="@android:color/darker_gray"
-        android:layout_marginTop="32dp"/>
+        android:layout_marginTop="32dp" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -45,27 +45,33 @@
 
         <Button
             android:id="@+id/btn_10"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:minWidth="0dp"
             android:background="@drawable/rounded_button"
             android:text="10 €"
-            android:layout_margin="8dp"/>
+            android:layout_margin="8dp" />
 
         <Button
             android:id="@+id/btn_20"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:minWidth="0dp"
             android:background="@drawable/rounded_button"
             android:text="20 €"
-            android:layout_margin="8dp"/>
+            android:layout_margin="8dp" />
 
         <Button
             android:id="@+id/btn_50"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:minWidth="0dp"
             android:background="@drawable/rounded_button"
             android:text="50 €"
-            android:layout_margin="8dp"/>
+            android:layout_margin="8dp" />
     </LinearLayout>
 
 </LinearLayout>
