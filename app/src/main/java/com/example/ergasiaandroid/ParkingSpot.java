@@ -4,10 +4,11 @@ import android.content.Context;
 import android.location.Address;
 import android.location.Geocoder;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Locale;
 
-public class ParkingSpot {
+public class ParkingSpot implements Serializable {
     public String name;
     public double lat, lng;
     public boolean isAvailable;

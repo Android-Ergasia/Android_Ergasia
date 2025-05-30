@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:padding="20dp"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <EditText
+        android:id="@+id/etHours"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Ώρες λειτουργίας" />
+
+    <EditText
+        android:id="@+id/etCost"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Κόστος ανά ώρα"
+        android:inputType="numberDecimal" />
+
+    <CheckBox
+        android:id="@+id/cbActive"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Ενεργή θέση" />
+
+    <Button
+        android:id="@+id/btnSave"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Αποθήκευση" />
+</LinearLayout>

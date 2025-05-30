@@ -25,7 +25,6 @@ import com.google.android.material.textfield.TextInputEditText;
 import java.util.Locale;
 
 public class PaymentFragment extends Fragment {
-
     private String sector, address, startTime, plate, email, spotPriceStr;
     private double amount;
 

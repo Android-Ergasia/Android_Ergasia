@@ -5,7 +5,6 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
-    <!-- ΤΙΤΛΟΣ -->
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -15,49 +14,50 @@
         android:gravity="center"
         android:layout_marginBottom="24dp" />
 
-    <!-- ΟΝΟΜΑ -->
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Όνομα θέσης:" />
-    <EditText
-        android:id="@+id/etName"
+    <TextView
+        android:id="@+id/spot_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp" />
+        android:textStyle="bold"
+        android:layout_marginBottom="12dp" />
 
-    <!-- ΤΙΜΗ -->
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Τιμή ανά ώρα:" />
-    <EditText
-        android:id="@+id/etPrice"
+        android:text="Διεύθυνση:" />
+    <TextView
+        android:id="@+id/spot_address"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:inputType="numberDecimal"
-        android:layout_marginBottom="16dp" />
+        android:layout_marginBottom="12dp" />
 
-    <!-- ΔΙΑΘΕΣΙΜΟΤΗΤΑ -->
-    <CheckBox
-        android:id="@+id/cbActive"
+    <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Διαθέσιμη θέση"
-        android:layout_marginBottom="24dp" />
-
-    <!-- ΚΟΥΜΠΙΑ -->
-    <Button
-        android:id="@+id/btnSave"
+        android:text="Τιμή/ώρα:" />
+    <TextView
+        android:id="@+id/spot_price"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Αποθήκευση" />
+        android:layout_marginBottom="12dp" />
 
-    <Button
-        android:id="@+id/btnBackToMap"
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Διαθεσιμότητα:" />
+    <TextView
+        android:id="@+id/spot_available"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Πίσω"
-        android:layout_marginTop="8dp" />
+        android:layout_marginBottom="18dp" />
 
+    <Button
+        android:id="@+id/btn_edit_spot"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Επεξεργασία Θέσης" />
 </LinearLayout>

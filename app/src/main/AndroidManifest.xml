@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
-
-    <uses-permission android:name="android.permission.INTERNET"/>
-
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.example.ergasiaandroid">
+    <!-- Δικαιώματα -->
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:allowBackup="true"
@@ -14,33 +14,34 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.ErgasiaAndroid"
         tools:targetApi="31">
-
-        <!--
-             TODO: Before you run your application, you need a Google Maps API key.
-
-             To get one, follow the directions here:
-
-                https://developers.google.com/maps/documentation/android-sdk/get-api-key
-
-             Once you have your API key (it starts with "AIza"), define a new property in your
-             project's local.properties file (e.g. MAPS_API_KEY=Aiza...), and replace the
-             "YOUR_API_KEY" string in this file with "${MAPS_API_KEY}".
-        -->
+        <activity
+            android:name=".AdminMapActivity"
+            android:exported="false" />
+        <!-- 🔑 Google Maps API key -->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyAEjbmMipnBhvdirqMotjJ4S189ngGqVHA" />
-
-        <activity android:name=".MapsActivity"
-            android:windowSoftInputMode="stateHidden"
+            android:value="AIzaSyAEjbmMipnBhvdirqMotjJ4S189ngGqVHA" /> <!-- ✅ MainActivity ως αρχική οθόνη -->
+        <activity
+            android:name=".MainActivity"
             android:exported="true"
-            android:label="Χάρτης Στάθμευσης">
+            android:label="Αρχική Οθόνη"
+            android:windowSoftInputMode="stateHidden">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
-
-
+        </activity> <!-- ✅ Δήλωση MapsActivity -->
+        <activity
+            android:name=".MapsActivity"
+            android:exported="false"
+            android:label="Χάρτης"
+            android:windowSoftInputMode="stateHidden" /> <!-- ✅ Δήλωση AdminPanelActivity -->
+        <activity
+            android:name=".AdminPanelActivity"
+            android:exported="false"
+            android:label="Πίνακας Διαχειριστή"
+            android:windowSoftInputMode="stateHidden" />
     </application>
 
 </manifest>

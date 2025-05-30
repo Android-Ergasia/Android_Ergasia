@@ -93,7 +93,6 @@ public class StopParkingFragment extends Fragment {
             }
         }
 
-        // Εμφάνιση στοιχείων χωρίς payment options (αρχική φάση)
         showBasicUI(view);
     }
 
@@ -111,14 +110,12 @@ public class StopParkingFragment extends Fragment {
         paymentAmount = view.findViewById(R.id.text_payment_amount);
         walletBalanceView = view.findViewById(R.id.text_wallet_balance);
 
-        // Εμφάνιση με bold label και κανονικό value
         textSector.setText(makeStyledLabelValue("Θέση: ", sector));
         textAddress.setText(makeStyledLabelValue("Διεύθυνση: ", address));
         textStartTime.setText(makeStyledLabelValue("Ώρα Έναρξης: ", startTime));
         textPlate.setText(makeStyledLabelValue("Πινακίδα: ", plate));
         textEmail.setText(makeStyledLabelValue("Email: ", email));
 
-        // Αρχικά κρυφά
         paymentAmount.setVisibility(View.GONE);
         walletBalanceView.setVisibility(View.GONE);
         payWithCard.setVisibility(View.GONE);
@@ -129,8 +126,7 @@ public class StopParkingFragment extends Fragment {
         finishButton.setOnClickListener(v -> {
             endTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
             totalCost = calculateCost(startTime, endTime, pricePerHour);
-            finishInstruction.setVisibility(View.GONE); // Κρύβει την οδηγία μόλις πατήσεις το κουμπί
-            showPaymentOptionsUI(view);
+            showPaymentOptionsUI(view);  // η οδηγία θα κρυφτεί εδώ
         });
 
         if (getActivity() != null) {
@@ -143,12 +139,12 @@ public class StopParkingFragment extends Fragment {
     }
 
     private void showPaymentOptionsUI(View view) {
-        // Εμφάνιση ΠΑΝΤΑ ΟΛΩΝ των στοιχείων!
         TextView textSector = view.findViewById(R.id.text_sector);
         TextView textAddress = view.findViewById(R.id.text_address);
         TextView textStartTime = view.findViewById(R.id.text_start_time);
         TextView textPlate = view.findViewById(R.id.text_plate);
         TextView textEmail = view.findViewById(R.id.text_email);
+        TextView finishInstruction = view.findViewById(R.id.finish_instruction);
 
         textSector.setText(makeStyledLabelValue("Θέση: ", sector));
         textAddress.setText(makeStyledLabelValue("Διεύθυνση: ", address));
@@ -162,21 +158,20 @@ public class StopParkingFragment extends Fragment {
         paymentAmount = view.findViewById(R.id.text_payment_amount);
         walletBalanceView = view.findViewById(R.id.text_wallet_balance);
 
-        // Εμφανίζουμε ποσά και κουμπιά πληρωμής
         paymentAmount.setText(String.format("Ποσό Πληρωμής: %.2f €", totalCost));
         paymentAmount.setVisibility(View.VISIBLE);
+        walletBalance = getWalletBalance();
+        walletBalanceView.setText(String.format("Υπόλοιπο Wallet: %.2f €", walletBalance));
+        walletBalanceView.setVisibility(View.VISIBLE);
 
         finishButton.setVisibility(View.GONE);
         payWithCard.setVisibility(View.VISIBLE);
         payWithWallet.setVisibility(View.VISIBLE);
-
-        // Επανενεργοποιούμε πάντα τα κουμπιά
         payWithCard.setEnabled(true);
         payWithWallet.setEnabled(true);
 
-        walletBalance = getWalletBalance();
-        walletBalanceView.setText(String.format("Υπόλοιπο Wallet: %.2f €", walletBalance));
-        walletBalanceView.setVisibility(View.VISIBLE);
+        // Κρύψε την οδηγία
+        finishInstruction.setVisibility(View.GONE);
 
         payWithCard.setOnClickListener(v -> {
             PaymentFragment paymentFragment = PaymentFragment.newInstance(
@@ -213,7 +208,6 @@ public class StopParkingFragment extends Fragment {
         }
     }
 
-    // Βοηθητική μέθοδος για bold label και κανονικό value
     private SpannableString makeStyledLabelValue(String label, String value) {
         SpannableString spannable = new SpannableString(label + value);
         spannable.setSpan(
@@ -249,4 +243,8 @@ public class StopParkingFragment extends Fragment {
             return 0.0;
         }
     }
+//    public boolean isInPaymentPhase() {
+//        return isPaymentPhase;
+//    }
+
 }

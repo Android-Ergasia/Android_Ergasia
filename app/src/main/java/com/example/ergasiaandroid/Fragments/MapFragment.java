@@ -1,7 +1,5 @@
 package com.example.ergasiaandroid.Fragments;
 
-import android.location.Address;
-import android.location.Geocoder;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -17,6 +15,8 @@ import androidx.fragment.app.Fragment;
 import com.example.ergasiaandroid.ParkingSpot;
 import com.example.ergasiaandroid.R;
 import com.example.ergasiaandroid.SpotChoiceInfoBottomSheet;
+import com.example.ergasiaandroid.AdminSpotEditBottomSheet; // Αν το βάλεις σε άλλο πακέτο
+
 import com.google.android.gms.maps.*;
 import com.google.android.gms.maps.model.*;
 
@@ -35,6 +35,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private ListView parkingList;
     private Button btnZoomIn, btnZoomOut;
 
+    private boolean isAdmin = false;
+
     public MapFragment() {}
 
     @Nullable
@@ -42,6 +44,11 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_map, container, false);
+
+        // Flag admin από arguments
+        if (getArguments() != null) {
+            isAdmin = getArguments().getBoolean("isAdmin", false);
+        }
 
         SupportMapFragment mapFragment = SupportMapFragment.newInstance();
         getChildFragmentManager().beginTransaction()
@@ -139,15 +146,23 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             }
 
             if (matched != null) {
-                if (!matched.isAvailable) {
-                    Toast.makeText(requireContext(), "Η θέση \"" + matched.name + "\" δεν είναι διαθέσιμη.", Toast.LENGTH_LONG).show();
+                if (isAdmin) {
+                    // Αν είσαι admin, δείξε το admin bottom sheet για επεξεργασία!
+                    AdminSpotEditBottomSheet
+                            .newInstance(matched)
+                            .show(getParentFragmentManager(), "AdminSpotEditBottomSheet");
                 } else {
-                    SpotChoiceInfoBottomSheet bottomSheet = SpotChoiceInfoBottomSheet.newInstance(
-                            matched.address,
-                            matched.name,
-                            matched.pricePerHour
-                    );
-                    bottomSheet.show(getParentFragmentManager(), "SpotChoiceInfoBottomSheet");
+                    // Κανονικός χρήστης
+                    if (!matched.isAvailable) {
+                        Toast.makeText(requireContext(), "Η θέση \"" + matched.name + "\" δεν είναι διαθέσιμη.", Toast.LENGTH_LONG).show();
+                    } else {
+                        SpotChoiceInfoBottomSheet bottomSheet = SpotChoiceInfoBottomSheet.newInstance(
+                                matched.address,
+                                matched.name,
+                                matched.pricePerHour
+                        );
+                        bottomSheet.show(getParentFragmentManager(), "SpotChoiceInfoBottomSheet");
+                    }
                 }
             }
             return true;
