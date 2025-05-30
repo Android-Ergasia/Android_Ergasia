@@ -15,7 +15,6 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
-import com.example.ergasiaandroid.MapsActivity;
 import com.example.ergasiaandroid.R;
 import com.example.ergasiaandroid.SpotChoiceInfoBottomSheet;
 
@@ -27,15 +26,15 @@ public class StartParkingFragment extends Fragment {
 
     private EditText editPlate, editEmail;
     private TextView textSector, textAddress, textStartTime;
-    private String sector;    // π.χ. "Parking 3"
-    private String address;   // π.χ. "Panepistimiou 1"
+    private String sector;
+    private String address;
     private String price;
 
     public static StartParkingFragment newInstance(String sector, String address, String price) {
         StartParkingFragment fragment = new StartParkingFragment();
         Bundle args = new Bundle();
-        args.putString("spot_number", sector);      // Θέση
-        args.putString("spot_address", address);    // Διεύθυνση
+        args.putString("spot_number", sector);
+        args.putString("spot_address", address);
         args.putString("spot_price", price);
         fragment.setArguments(args);
         return fragment;
@@ -100,7 +99,6 @@ public class StartParkingFragment extends Fragment {
             InputMethodManager imm = (InputMethodManager) requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
 
-            // Καθαρισμός τιμής τιμής
             String priceNumeric = price.replaceAll(",", ".").replaceAll("[^0-9.]", "");
             if (priceNumeric.isEmpty()) priceNumeric = "1.5";
             if (priceNumeric.endsWith(".")) priceNumeric = priceNumeric.substring(0, priceNumeric.length() - 1);
@@ -108,14 +106,7 @@ public class StartParkingFragment extends Fragment {
             String currentTimeLocal = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date());
 
             StopParkingFragment stopFragment = StopParkingFragment.newInstance(
-                    sector,
-                    address,
-                    currentTimeLocal,
-                    plate,
-                    email,
-                    priceNumeric,
-                    false,     // paymentPhase = false στην αρχή
-                    null       // totalCost = null στην αρχή
+                    sector, address, currentTimeLocal, plate, email, priceNumeric, false, null
             );
 
             getParentFragmentManager()
@@ -130,44 +121,16 @@ public class StartParkingFragment extends Fragment {
         return Patterns.EMAIL_ADDRESS.matcher(email).matches();
     }
 
-//    @Override
-//    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-//        if (item.getItemId() == android.R.id.home) {
-//            if (getActivity() != null) {
-//                SpotChoiceInfoBottomSheet bottomSheet = SpotChoiceInfoBottomSheet.newInstance(address, sector, price);
-//                bottomSheet.show(getParentFragmentManager(), "spot_choice_info");
-//
-//                if (getActivity() instanceof MapsActivity) {
-//                    ((MapsActivity) getActivity()).toggleMainMapViews(true);
-//                }
-//
-//                getParentFragmentManager().popBackStack();
-//            }
-//            return true;
-//        }
-//        return super.onOptionsItemSelected(item);
-//    }
-
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
             if (getActivity() != null) {
                 SpotChoiceInfoBottomSheet bottomSheet = SpotChoiceInfoBottomSheet.newInstance(address, sector, price);
                 bottomSheet.show(getParentFragmentManager(), "spot_choice_info");
-                // ΑΦΑΙΡΕΣΕ αυτή τη γραμμή:
-                // if (getActivity() instanceof MapsActivity) {
-                //     ((MapsActivity) getActivity()).toggleMainMapViews(true);
-                // }
                 getParentFragmentManager().popBackStack();
             }
             return true;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
     }
 }

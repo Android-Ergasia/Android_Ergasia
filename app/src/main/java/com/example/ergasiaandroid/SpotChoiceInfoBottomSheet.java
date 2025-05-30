@@ -49,7 +49,6 @@ public class SpotChoiceInfoBottomSheet extends BottomSheetDialogFragment {
         TextView spotNumberText = view.findViewById(R.id.text_spot_number);
         Button startButton = view.findViewById(R.id.button_start_parking);
 
-        // Set formatted, single-line label + value text
         spotNumberText.setText(makeStyledLabelValue("Θέση: ", spotName));
         addressText.setText(makeStyledLabelValue("Διεύθυνση: ", address));
         priceText.setText(makeStyledLabelValue("Τιμή/ώρα: ", pricePerHour));
@@ -60,10 +59,10 @@ public class SpotChoiceInfoBottomSheet extends BottomSheetDialogFragment {
                     ((MapsActivity) getActivity()).toggleMainMapViews(false);
                 }
 
-                View fragmentContainer = getActivity().findViewById(R.id.fragment_container);
-                fragmentContainer.setVisibility(View.VISIBLE);
+                StartParkingFragment fragment = StartParkingFragment.newInstance(
+                        spotName, address, pricePerHour
+                );
 
-                StartParkingFragment fragment = StartParkingFragment.newInstance(spotName, address, pricePerHour);
                 getParentFragmentManager()
                         .beginTransaction()
                         .replace(R.id.fragment_container, fragment)
@@ -77,7 +76,6 @@ public class SpotChoiceInfoBottomSheet extends BottomSheetDialogFragment {
         return view;
     }
 
-    // Helper method for label-value text with bold label
     private SpannableString makeStyledLabelValue(String label, String value) {
         SpannableString spannable = new SpannableString(label + value);
         spannable.setSpan(

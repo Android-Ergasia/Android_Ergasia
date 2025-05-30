@@ -3,9 +3,7 @@ package com.example.ergasiaandroid.Fragments;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
+import android.view.*;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -23,12 +21,10 @@ import com.example.ergasiaandroid.R;
 
 import org.json.JSONObject;
 
-import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 
 public class StopParkingFragment extends Fragment {
@@ -37,11 +33,10 @@ public class StopParkingFragment extends Fragment {
     private double pricePerHour;
     private TextView paymentAmount;
     private TextView walletBalanceView;
-    private String endTime;
+    private TextView finishInstruction;
     private double totalCost;
     private double walletBalance;
     private boolean isPaymentPhase = false;
-
 
     public static StopParkingFragment newInstance(String sector, String address, String startTime,
                                                   String plate, String email, String spotPrice,
@@ -60,8 +55,7 @@ public class StopParkingFragment extends Fragment {
         return fragment;
     }
 
-    public StopParkingFragment() {
-    }
+    public StopParkingFragment() {}
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -86,15 +80,47 @@ public class StopParkingFragment extends Fragment {
             if (isPaymentPhase) {
                 totalCost = getArguments().getDouble("total_cost", 0.0);
                 showPaymentOptionsUI(view);
-                return;
+            } else {
+                showBasicUI(view);
             }
         }
 
-        showBasicUI(view);
+        setHasOptionsMenu(true);
+        AppCompatActivity activity = (AppCompatActivity) requireActivity();
+        if (activity.getSupportActionBar() != null) {
+            activity.getSupportActionBar().setDisplayHomeAsUpEnabled(isPaymentPhase);
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        AppCompatActivity activity = (AppCompatActivity) requireActivity();
+        activity.setTitle("Ολοκλήρωση Στάθμευσης");
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        AppCompatActivity activity = (AppCompatActivity) requireActivity();
+        if (activity.getSupportActionBar() != null) {
+            activity.getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+        }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == android.R.id.home && isPaymentPhase) {
+            requireActivity().getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.fragment_container, new StartParkingFragment())
+                    .commit();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     private void showBasicUI(View view) {
-        // Setup UI
         TextView textSector = view.findViewById(R.id.text_sector);
         TextView textAddress = view.findViewById(R.id.text_address);
         TextView textStartTime = view.findViewById(R.id.text_start_time);
@@ -105,6 +131,7 @@ public class StopParkingFragment extends Fragment {
         Button payWithWallet = view.findViewById(R.id.button_pay_with_wallet);
         paymentAmount = view.findViewById(R.id.text_payment_amount);
         walletBalanceView = view.findViewById(R.id.text_wallet_balance);
+        finishInstruction = view.findViewById(R.id.finish_instruction);
 
         textSector.setText("Θέση: " + sector);
         textAddress.setText("Διεύθυνση: " + address);
@@ -119,6 +146,7 @@ public class StopParkingFragment extends Fragment {
         finishButton.setVisibility(View.VISIBLE);
 
         finishButton.setOnClickListener(v -> {
+            finishInstruction.setVisibility(View.GONE);
             String endTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
             totalCost = calculateCost(startTime, endTime, pricePerHour);
             showPaymentOptionsUI(view);
