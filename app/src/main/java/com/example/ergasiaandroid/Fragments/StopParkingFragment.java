@@ -1,6 +1,7 @@
 package com.example.ergasiaandroid.Fragments;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,11 +16,20 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
+import com.android.volley.Request;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.example.ergasiaandroid.R;
 
+import org.json.JSONObject;
+
+import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
 
 public class StopParkingFragment extends Fragment {
 
@@ -31,6 +41,7 @@ public class StopParkingFragment extends Fragment {
     private double totalCost;
     private double walletBalance;
     private boolean isPaymentPhase = false;
+
 
     public static StopParkingFragment newInstance(String sector, String address, String startTime,
                                                   String plate, String email, String spotPrice,
@@ -44,19 +55,12 @@ public class StopParkingFragment extends Fragment {
         args.putString("email", email);
         args.putString("spot_price", spotPrice);
         args.putBoolean("payment_phase", paymentPhase);
-        if (totalCost != null) {
-            args.putDouble("total_cost", totalCost);
-        }
+        if (totalCost != null) args.putDouble("total_cost", totalCost);
         fragment.setArguments(args);
         return fragment;
     }
 
-    public StopParkingFragment() {}
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setHasOptionsMenu(true);
+    public StopParkingFragment() {
     }
 
     @Override
@@ -76,12 +80,8 @@ public class StopParkingFragment extends Fragment {
             plate = getArguments().getString("plate");
             email = getArguments().getString("email");
             isPaymentPhase = getArguments().getBoolean("payment_phase", false);
-
             String spotPriceStr = getArguments().getString("spot_price");
-            if (spotPriceStr == null || spotPriceStr.isEmpty()) {
-                throw new IllegalArgumentException("Το κόστος θέσης στάθμευσης (spot_price) πρέπει να δοθεί.");
-            }
-            pricePerHour = Double.parseDouble(spotPriceStr);
+            pricePerHour = Double.parseDouble(spotPriceStr != null ? spotPriceStr : "0");
 
             if (isPaymentPhase) {
                 totalCost = getArguments().getDouble("total_cost", 0.0);
@@ -90,31 +90,28 @@ public class StopParkingFragment extends Fragment {
             }
         }
 
-        // Εμφάνιση στοιχείων χωρίς payment options (αρχική φάση)
         showBasicUI(view);
     }
 
     private void showBasicUI(View view) {
+        // Setup UI
         TextView textSector = view.findViewById(R.id.text_sector);
         TextView textAddress = view.findViewById(R.id.text_address);
         TextView textStartTime = view.findViewById(R.id.text_start_time);
         TextView textPlate = view.findViewById(R.id.text_plate);
         TextView textEmail = view.findViewById(R.id.text_email);
-
         Button finishButton = view.findViewById(R.id.button_finish);
         Button payWithCard = view.findViewById(R.id.button_pay_with_card);
         Button payWithWallet = view.findViewById(R.id.button_pay_with_wallet);
         paymentAmount = view.findViewById(R.id.text_payment_amount);
         walletBalanceView = view.findViewById(R.id.text_wallet_balance);
 
-        // Εμφάνιση βασικών στοιχείων
         textSector.setText("Θέση: " + sector);
         textAddress.setText("Διεύθυνση: " + address);
         textStartTime.setText("Ώρα Έναρξης: " + startTime);
         textPlate.setText("Πινακίδα: " + plate);
         textEmail.setText("Email: " + email);
 
-        // Αρχικά κρυφά
         paymentAmount.setVisibility(View.GONE);
         walletBalanceView.setVisibility(View.GONE);
         payWithCard.setVisibility(View.GONE);
@@ -122,27 +119,23 @@ public class StopParkingFragment extends Fragment {
         finishButton.setVisibility(View.VISIBLE);
 
         finishButton.setOnClickListener(v -> {
-            endTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+            String endTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
             totalCost = calculateCost(startTime, endTime, pricePerHour);
             showPaymentOptionsUI(view);
         });
-
-        if (getActivity() != null) {
-            AppCompatActivity activity = (AppCompatActivity) getActivity();
-            if (activity.getSupportActionBar() != null) {
-                activity.getSupportActionBar().setTitle("Τέλος Στάθμευσης");
-                activity.getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-            }
-        }
     }
 
     private void showPaymentOptionsUI(View view) {
-        // Εμφάνιση ΠΑΝΤΑ ΟΛΩΝ των στοιχείων!
         TextView textSector = view.findViewById(R.id.text_sector);
         TextView textAddress = view.findViewById(R.id.text_address);
         TextView textStartTime = view.findViewById(R.id.text_start_time);
         TextView textPlate = view.findViewById(R.id.text_plate);
         TextView textEmail = view.findViewById(R.id.text_email);
+        Button finishButton = view.findViewById(R.id.button_finish);
+        Button payWithCard = view.findViewById(R.id.button_pay_with_card);
+        Button payWithWallet = view.findViewById(R.id.button_pay_with_wallet);
+        paymentAmount = view.findViewById(R.id.text_payment_amount);
+        walletBalanceView = view.findViewById(R.id.text_wallet_balance);
 
         textSector.setText("Θέση: " + sector);
         textAddress.setText("Διεύθυνση: " + address);
@@ -150,23 +143,11 @@ public class StopParkingFragment extends Fragment {
         textPlate.setText("Πινακίδα: " + plate);
         textEmail.setText("Email: " + email);
 
-        Button finishButton = view.findViewById(R.id.button_finish);
-        Button payWithCard = view.findViewById(R.id.button_pay_with_card);
-        Button payWithWallet = view.findViewById(R.id.button_pay_with_wallet);
-        paymentAmount = view.findViewById(R.id.text_payment_amount);
-        walletBalanceView = view.findViewById(R.id.text_wallet_balance);
-
-        // Εμφανίζουμε ποσά και κουμπιά πληρωμής
-        paymentAmount.setText(String.format("Ποσό Πληρωμής: %.2f €", totalCost));
-        paymentAmount.setVisibility(View.VISIBLE);
-
         finishButton.setVisibility(View.GONE);
         payWithCard.setVisibility(View.VISIBLE);
         payWithWallet.setVisibility(View.VISIBLE);
-
-        // Επανενεργοποιούμε πάντα τα κουμπιά
-        payWithCard.setEnabled(true);
-        payWithWallet.setEnabled(true);
+        paymentAmount.setVisibility(View.VISIBLE);
+        paymentAmount.setText(String.format("Ποσό Πληρωμής: %.2f €", totalCost));
 
         walletBalance = getWalletBalance();
         walletBalanceView.setText(String.format("Υπόλοιπο Wallet: %.2f €", walletBalance));
@@ -174,8 +155,7 @@ public class StopParkingFragment extends Fragment {
 
         payWithCard.setOnClickListener(v -> {
             PaymentFragment paymentFragment = PaymentFragment.newInstance(
-                    sector, address, startTime, plate, email, totalCost, String.valueOf(pricePerHour)
-            );
+                    sector, address, startTime, plate, email, totalCost, String.valueOf(pricePerHour));
             requireActivity().getSupportFragmentManager()
                     .beginTransaction()
                     .replace(R.id.fragment_container, paymentFragment)
@@ -184,51 +164,91 @@ public class StopParkingFragment extends Fragment {
         });
 
         payWithWallet.setOnClickListener(v -> {
-            walletBalance = getWalletBalance();
             if (walletBalance >= totalCost) {
                 setWalletBalance(walletBalance - totalCost);
                 Toast.makeText(getContext(), "Πληρωμή με wallet ολοκληρώθηκε επιτυχώς!", Toast.LENGTH_LONG).show();
                 payWithCard.setEnabled(false);
                 payWithWallet.setEnabled(false);
-
+                sendParkingDataToServer();
+                sendUserDataToServer();
                 requireActivity().getSupportFragmentManager()
                         .popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
             } else {
                 Toast.makeText(getContext(), "Ανεπαρκές υπόλοιπο στο wallet.", Toast.LENGTH_LONG).show();
             }
         });
-
-        if (getActivity() != null) {
-            AppCompatActivity activity = (AppCompatActivity) getActivity();
-            if (activity.getSupportActionBar() != null) {
-                activity.getSupportActionBar().setTitle("Τέλος Στάθμευσης");
-                activity.getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-            }
-        }
     }
 
     private double getWalletBalance() {
-        return requireActivity().getSharedPreferences("wallet_prefs", Context.MODE_PRIVATE).getFloat("balance", 0f);
+        SharedPreferences prefs = requireContext().getSharedPreferences("wallet_prefs", Context.MODE_PRIVATE);
+        return prefs.getFloat("balance", 0f);
     }
 
     private void setWalletBalance(double newBalance) {
-        requireActivity().getSharedPreferences("wallet_prefs", Context.MODE_PRIVATE)
-                .edit().putFloat("balance", (float) newBalance).apply();
+        SharedPreferences prefs = requireContext().getSharedPreferences("wallet_prefs", Context.MODE_PRIVATE);
+        prefs.edit().putFloat("balance", (float) newBalance).apply();
     }
 
-    private double calculateCost(String startTimeStr, String endTimeStr, double costPerHour) {
+    private double calculateCost(String startStr, String endStr, double costPerHour) {
         try {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-            LocalDateTime start = LocalDateTime.parse(startTimeStr, formatter);
-            LocalDateTime end = LocalDateTime.parse(endTimeStr, formatter);
-
+            DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            LocalDateTime start = LocalDateTime.parse(startStr, fmt);
+            LocalDateTime end = LocalDateTime.parse(endStr, fmt);
             long seconds = Duration.between(start, end).getSeconds();
             double hours = seconds / 3600.0;
-            double hoursRoundedUp = Math.max(1, Math.ceil(hours));
-            return hoursRoundedUp * costPerHour;
+            return Math.max(1, Math.ceil(hours)) * costPerHour;
         } catch (Exception e) {
             e.printStackTrace();
             return 0.0;
+        }
+    }
+
+    private void sendParkingDataToServer() {
+        try {
+            String endTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+            String url = "http://10.0.2.2/parking_app/insert_parking_history.php";
+
+            Map<String, Object> params = new HashMap<>();
+            params.put("user_id", email);
+            params.put("spot", sector);
+            params.put("start", startTime);
+            params.put("end", endTime);
+            params.put("rate", pricePerHour);
+            params.put("amount", totalCost);
+
+            JSONObject jsonObject = new JSONObject(params);
+
+            JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, url, jsonObject,
+                    response -> System.out.println("✅ [WALLET] Parking saved: " + response.toString()),
+                    error -> error.printStackTrace());
+
+            Volley.newRequestQueue(requireContext()).add(request);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void sendUserDataToServer() {
+        try {
+            String url = "http://10.0.2.2/parking_app/save_user_data.php";
+
+            Map<String, Object> params = new HashMap<>();
+            params.put("user_id", email);
+            params.put("wallet_balance", walletBalance);
+            params.put("total_spent", totalCost);
+            params.put("total_park_time", 1);
+            params.put("last_sector", sector);
+            params.put("last_park_time", startTime);
+
+            JSONObject jsonObject = new JSONObject(params);
+
+            JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, url, jsonObject,
+                    response -> System.out.println("✅ [WALLET] User data saved: " + response.toString()),
+                    error -> error.printStackTrace());
+
+            Volley.newRequestQueue(requireContext()).add(request);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }

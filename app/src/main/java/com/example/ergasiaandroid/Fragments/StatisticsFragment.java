@@ -1,12 +1,13 @@
 package com.example.ergasiaandroid.Fragments;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import com.example.ergasiaandroid.R;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -14,10 +15,9 @@ import androidx.fragment.app.Fragment;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.example.ergasiaandroid.R;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -48,67 +48,87 @@ public class StatisticsFragment extends Fragment {
     }
 
     private void fetchStats() {
-        String url = "https://mocki.io/v1/97ec4d09-d847-42dd-a3ab-1f539fbc51c2";
+        SharedPreferences prefs = requireContext().getSharedPreferences("UserPrefs", Context.MODE_PRIVATE);
+        String userEmail = prefs.getString("user_email", null);
+        if (userEmail == null) {
+            tvTotalAmount.setText("Δεν υπάρχει χρήστης");
+            return;
+        }
+
+        String url = "http://10.0.2.2/parking_app/get_parking_history.php?user_id=" + userEmail;
 
         RequestQueue queue = Volley.newRequestQueue(requireContext());
 
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null,
-                new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        try {
-                            JSONArray history = response.getJSONArray("parking_history");
+                response -> {
+                    System.out.println("📥 RAW JSON: " + response.toString());
 
-                            double totalAmount = 0.0;
-                            double totalHours = 0.0;
-                            Map<String, Double> hoursPerSpot = new HashMap<>();
+                    try {
+                        JSONArray history = response.getJSONArray("parking_history");
 
-                            for (int i = 0; i < history.length(); i++) {
-                                JSONObject entry = history.getJSONObject(i);
+                        double totalAmount = 0.0;
+                        double totalHours = 0.0;
+                        Map<String, Double> hoursPerSpot = new HashMap<>();
 
-                                String spot = entry.getString("spot");
-                                String startStr = entry.getString("start");
-                                String endStr = entry.getString("end");
-                                double rate = entry.getDouble("rate");
+                        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
 
-                                SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault());
-                                Date start = format.parse(startStr);
-                                Date end = format.parse(endStr);
+                        for (int i = 0; i < history.length(); i++) {
+                            JSONObject entry = history.getJSONObject(i);
 
-                                long diffMs = end.getTime() - start.getTime();
-                                double hours = diffMs / (1000.0 * 60 * 60);
+                            String spot = entry.optString("spot", "Άγνωστη θέση");
+                            String startStr = entry.optString("start", "");
+                            String endStr = entry.optString("end", "");
+                            double rate = entry.optDouble("rate", 0.0);
 
-                                totalHours += hours;
-                                totalAmount += hours * rate;
+                            if (startStr.isEmpty() || endStr.isEmpty()) continue;
 
-                                if (!hoursPerSpot.containsKey(spot)) {
-                                    hoursPerSpot.put(spot, 0.0);
-                                }
-                                hoursPerSpot.put(spot, hoursPerSpot.get(spot) + hours);
-                            }
+                            Date start = format.parse(startStr);
+                            Date end = format.parse(endStr);
+                            if (start == null || end == null) continue;
 
-                            tvTotalAmount.setText("Συνολικό Ποσό: " + String.format(Locale.getDefault(), "%.2f €", totalAmount));
-                            tvTotalHours.setText("Συνολικές Ώρες: " + String.format(Locale.getDefault(), "%.2f", totalHours));
+                            long diffMs = end.getTime() - start.getTime();
+                            if (diffMs <= 0) continue;
 
-                            layoutPerSpot.removeAllViews();
-                            for (Map.Entry<String, Double> entry : hoursPerSpot.entrySet()) {
-                                TextView tv = new TextView(getContext());
-                                tv.setText(entry.getKey() + ": " + String.format(Locale.getDefault(), "%.2f ώρες", entry.getValue()));
-                                tv.setTextSize(18);
-                                layoutPerSpot.addView(tv);
-                            }
+                            double hours = Math.ceil(diffMs / (1000.0 * 60 * 60)); // Στρογγυλοποίηση προς τα πάνω
 
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                            tvTotalAmount.setText("Σφάλμα ανάγνωσης δεδομένων");
+                            double amount = entry.has("amount_paid") && !entry.isNull("amount_paid")
+                                    ? entry.getDouble("amount_paid")
+                                    : hours * rate;
+
+                            totalHours += hours;
+                            totalAmount += amount;
+
+                            hoursPerSpot.put(spot, hoursPerSpot.getOrDefault(spot, 0.0) + hours);
                         }
+
+                        tvTotalAmount.setText("Συνολικό Ποσό: " + String.format(Locale.getDefault(), "%.2f €", totalAmount));
+                        tvTotalHours.setText("Συνολικές Ώρες: " + String.format(Locale.getDefault(), "%.0f", totalHours));
+
+                        layoutPerSpot.removeAllViews();
+                        for (Map.Entry<String, Double> entry : hoursPerSpot.entrySet()) {
+                            TextView tv = new TextView(getContext());
+                            tv.setText(entry.getKey() + ": " + String.format(Locale.getDefault(), "%.0f ώρες", entry.getValue()));
+                            tv.setTextSize(18);
+                            layoutPerSpot.addView(tv);
+                        }
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        tvTotalAmount.setText("Σφάλμα ανάγνωσης δεδομένων");
+                        tvTotalHours.setText("");
                     }
                 },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        tvTotalAmount.setText("Σφάλμα σύνδεσης");
+                error -> {
+                    error.printStackTrace();
+                    if (error.networkResponse != null && error.networkResponse.data != null) {
+                        String responseBody = new String(error.networkResponse.data);
+                        System.out.println("⚠️ Σφάλμα από server (Volley): " + responseBody);
+                    } else {
+                        System.out.println("⚠️ Volley error χωρίς απάντηση");
                     }
+
+                    tvTotalAmount.setText("Σφάλμα σύνδεσης");
+                    tvTotalHours.setText("");
                 });
 
         queue.add(request);
