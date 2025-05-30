@@ -14,47 +14,75 @@
         android:gravity="center"
         android:layout_marginBottom="24dp" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Όνομα θέσης:" />
-    <TextView
-        android:id="@+id/spot_name"
+    <!-- Όνομα Θέσης -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textStyle="bold"
-        android:layout_marginBottom="12dp" />
+        android:orientation="horizontal"
+        android:layout_marginBottom="12dp">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Όνομα θέσης: "
+            android:textStyle="bold"/>
+        <TextView
+            android:id="@+id/spot_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+    </LinearLayout>
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Διεύθυνση:" />
-    <TextView
-        android:id="@+id/spot_address"
+    <!-- Διεύθυνση -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="12dp" />
+        android:orientation="horizontal"
+        android:layout_marginBottom="12dp">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Διεύθυνση: "
+            android:textStyle="bold"/>
+        <TextView
+            android:id="@+id/spot_address"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+    </LinearLayout>
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Τιμή/ώρα:" />
-    <TextView
-        android:id="@+id/spot_price"
+    <!-- Τιμή/ώρα -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="12dp" />
+        android:orientation="horizontal"
+        android:layout_marginBottom="12dp">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Τιμή/ώρα: "
+            android:textStyle="bold"/>
+        <TextView
+            android:id="@+id/spot_price"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+    </LinearLayout>
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Διαθεσιμότητα:" />
-    <TextView
-        android:id="@+id/spot_available"
+    <!-- Διαθεσιμότητα -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="18dp" />
+        android:orientation="horizontal"
+        android:layout_marginBottom="18dp">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Διαθεσιμότητα: "
+            android:textStyle="bold"/>
+        <TextView
+            android:id="@+id/spot_available"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+    </LinearLayout>
 
+    <!-- Κουμπί -->
     <Button
         android:id="@+id/btn_edit_spot"
         android:layout_width="match_parent"

@@ -45,7 +45,6 @@ public class AdminSpotEditBottomSheet extends BottomSheetDialogFragment {
         }
 
         btnEdit.setOnClickListener(v -> {
-            // Δημιουργούμε νέο αντικείμενο ParkingSpot χωρίς διεύθυνση (ΔΕΝ περνάμε address)
             ParkingSpot spot = new ParkingSpot(
                     args.getString("name", ""),
                     args.getDouble("lat", 0),
@@ -56,7 +55,7 @@ public class AdminSpotEditBottomSheet extends BottomSheetDialogFragment {
             );
 
             Intent intent = new Intent(requireContext(), AdminPanelActivity.class);
-            intent.putExtra("spot", spot); // address δεν χρειάζεται στο AdminPanel
+            intent.putExtra("spot", spot);
             startActivity(intent);
 
             dismiss();

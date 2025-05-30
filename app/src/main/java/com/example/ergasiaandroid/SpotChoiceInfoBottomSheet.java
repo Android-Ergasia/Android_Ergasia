@@ -40,8 +40,8 @@ public class SpotChoiceInfoBottomSheet extends BottomSheetDialogFragment {
 
         if (getArguments() != null) {
             address = getArguments().getString("address");
-            pricePerHour = getArguments().getString("price_per_hour");
             spotName = getArguments().getString("spot_name");
+            pricePerHour = getArguments().getString("price_per_hour");
         }
 
         TextView addressText = view.findViewById(R.id.text_address);
@@ -49,9 +49,10 @@ public class SpotChoiceInfoBottomSheet extends BottomSheetDialogFragment {
         TextView spotNumberText = view.findViewById(R.id.text_spot_number);
         Button startButton = view.findViewById(R.id.button_start_parking);
 
+        // Set formatted, single-line label + value text
+        spotNumberText.setText(makeStyledLabelValue("Θέση: ", spotName));
         addressText.setText(makeStyledLabelValue("Διεύθυνση: ", address));
         priceText.setText(makeStyledLabelValue("Τιμή/ώρα: ", pricePerHour));
-        spotNumberText.setText(makeStyledLabelValue("Θέση: ", spotName));
 
         startButton.setOnClickListener(v -> {
             if (getActivity() != null) {
@@ -76,7 +77,7 @@ public class SpotChoiceInfoBottomSheet extends BottomSheetDialogFragment {
         return view;
     }
 
-    // Helper function to bold only the label
+    // Helper method for label-value text with bold label
     private SpannableString makeStyledLabelValue(String label, String value) {
         SpannableString spannable = new SpannableString(label + value);
         spannable.setSpan(
