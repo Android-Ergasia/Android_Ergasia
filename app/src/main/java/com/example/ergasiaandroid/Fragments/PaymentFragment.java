@@ -254,3 +254,4 @@ public class PaymentFragment extends Fragment {
         return super.onOptionsItemSelected(item);
     }
 }
+
