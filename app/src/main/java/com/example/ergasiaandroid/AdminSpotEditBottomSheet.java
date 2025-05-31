@@ -15,12 +15,15 @@ public class AdminSpotEditBottomSheet extends BottomSheetDialogFragment {
     public static AdminSpotEditBottomSheet newInstance(ParkingSpot spot) {
         AdminSpotEditBottomSheet sheet = new AdminSpotEditBottomSheet();
         Bundle args = new Bundle();
+
+        args.putInt("id", spot.id);                        // ✅ προσθήκη id
         args.putString("name", spot.name);
         args.putString("address", spot.address);
         args.putBoolean("available", spot.isAvailable);
         args.putString("price", spot.pricePerHour);
         args.putDouble("lat", spot.lat);
         args.putDouble("lng", spot.lng);
+
         sheet.setArguments(args);
         return sheet;
     }
@@ -45,19 +48,21 @@ public class AdminSpotEditBottomSheet extends BottomSheetDialogFragment {
         }
 
         btnEdit.setOnClickListener(v -> {
+            if (args == null) return;
+
             ParkingSpot spot = new ParkingSpot(
-                    args.getString("name", ""),
-                    args.getDouble("lat", 0),
-                    args.getDouble("lng", 0),
-                    args.getBoolean("available"),
-                    args.getString("price", ""),
-                    requireContext()
+                    args.getInt("id", 0),                       // ✅ id (απαραίτητο)
+                    args.getString("name", ""),                // name
+                    args.getDouble("lat", 0),                  // lat
+                    args.getDouble("lng", 0),                  // lng
+                    args.getBoolean("available"),              // isAvailable
+                    args.getString("price", ""),               // price
+                    requireContext()                           // context για απόκτηση address
             );
 
             Intent intent = new Intent(requireContext(), AdminPanelActivity.class);
             intent.putExtra("spot", spot);
             startActivity(intent);
-
             dismiss();
         });
 

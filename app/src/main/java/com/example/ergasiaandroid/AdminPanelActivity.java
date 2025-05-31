@@ -8,6 +8,9 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 public class AdminPanelActivity extends AppCompatActivity {
 
     private EditText etName, etPrice;
@@ -41,9 +44,38 @@ public class AdminPanelActivity extends AppCompatActivity {
                 spot.pricePerHour = etPrice.getText().toString().trim() + "€/ώρα";
                 spot.isAvailable = cbActive.isChecked();
 
-                // Αν θες, αποθήκευση σε storage/DB/SharedPreferences
-                Toast.makeText(this, "Ενημερώθηκε!", Toast.LENGTH_SHORT).show();
-                finish();
+                JSONObject json = new JSONObject();
+                try {
+                    json.put("id", spot.id);
+                    json.put("name", spot.name);
+                    json.put("price", spot.pricePerHour);
+                    json.put("isAvailable", spot.isAvailable ? 1 : 0);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                new Thread(() -> {
+                    HttpHandler handler = new HttpHandler();
+                    String url = "http://10.0.2.2/parking_app/update_parking_spot.php";
+                    String result = handler.makePostRequest(url, json);
+
+                    runOnUiThread(() -> {
+                        try {
+                            JSONObject res = new JSONObject(result);
+                            String status = res.optString("status", "");
+                            if ("Success".equals(status)) {
+                                Toast.makeText(this, "✅ Ενημερώθηκε!", Toast.LENGTH_SHORT).show();
+                                finish();
+                            } else {
+                                String error = res.optString("error", "Άγνωστο σφάλμα");
+                                Toast.makeText(this, "❌ Αποτυχία ενημέρωσης: " + error, Toast.LENGTH_LONG).show();
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            Toast.makeText(this, "⚠️ Σφάλμα στην απάντηση από τον server", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }).start();
             }
         });
 

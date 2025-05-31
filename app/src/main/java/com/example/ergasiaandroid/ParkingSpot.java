@@ -9,13 +9,19 @@ import java.util.List;
 import java.util.Locale;
 
 public class ParkingSpot implements Serializable {
+    public int id;
     public String name;
     public double lat, lng;
     public boolean isAvailable;
     public String address;
     public String pricePerHour;
 
-    public ParkingSpot(String name, double lat, double lng, boolean isAvailable, String pricePerHour, Context context) {
+    // 🔹 Default constructor (για JSON μετατροπές, Retrofit κλπ)
+    public ParkingSpot() {}
+
+    // 🔹 Πλήρης constructor με διεύθυνση από γεωγραφικά στοιχεία
+    public ParkingSpot(int id, String name, double lat, double lng, boolean isAvailable, String pricePerHour, Context context) {
+        this.id = id;
         this.name = name;
         this.lat = lat;
         this.lng = lng;
@@ -24,6 +30,18 @@ public class ParkingSpot implements Serializable {
         this.address = getAddressFromLocation(context, lat, lng);
     }
 
+    // 🔹 Constructor χωρίς Context (π.χ. από PHP ή JSON)
+    public ParkingSpot(int id, String name, double lat, double lng, boolean isAvailable, String pricePerHour, String address) {
+        this.id = id;
+        this.name = name;
+        this.lat = lat;
+        this.lng = lng;
+        this.isAvailable = isAvailable;
+        this.pricePerHour = pricePerHour;
+        this.address = address;
+    }
+
+    // 🔹 Μέθοδος μετατροπής συντεταγμένων σε διεύθυνση (Android Geocoder)
     private String getAddressFromLocation(Context context, double latitude, double longitude) {
         try {
             Geocoder geocoder = new Geocoder(context, Locale.getDefault());

@@ -12,10 +12,11 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
+import com.example.ergasiaandroid.HttpHandler;
 import com.example.ergasiaandroid.ParkingSpot;
 import com.example.ergasiaandroid.R;
 import com.example.ergasiaandroid.SpotChoiceInfoBottomSheet;
-import com.example.ergasiaandroid.AdminSpotEditBottomSheet; // Αν το βάλεις σε άλλο πακέτο
+import com.example.ergasiaandroid.AdminSpotEditBottomSheet;
 
 import com.google.android.gms.maps.*;
 import com.google.android.gms.maps.model.*;
@@ -23,12 +24,15 @@ import com.google.android.gms.maps.model.*;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.util.*;
 
 public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     private GoogleMap mMap;
-    private List<ParkingSpot> allSpots;
+    private List<ParkingSpot> allSpots = new ArrayList<>();
 
     private EditText searchBar;
     private Spinner filterSpinner;
@@ -45,7 +49,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                              @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_map, container, false);
 
-        // Flag admin από arguments
         if (getArguments() != null) {
             isAdmin = getArguments().getBoolean("isAdmin", false);
         }
@@ -69,7 +72,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     @Override
     public void onResume() {
         super.onResume();
-        // Ενημέρωση τίτλου κάθε φορά που εμφανίζεται το fragment
+        fetchAllSpotsFromServer(() -> showAllParkingSpots("Όλες"));
         if (getActivity() != null) {
             AppCompatActivity activity = (AppCompatActivity) getActivity();
             if (activity.getSupportActionBar() != null) {
@@ -82,12 +85,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     @Override
     public void onMapReady(@NonNull GoogleMap googleMap) {
         mMap = googleMap;
-        allSpots = createAllSpots();
-
-        LatLng initial = new LatLng(21.3069, -157.8583); // Ενδεικτική αρχική θέση
+        LatLng initial = new LatLng(21.3069, -157.8583);
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(initial, 15));
 
-        showAllParkingSpots("Όλες");
+        fetchAllSpotsFromServer(() -> showAllParkingSpots("Όλες"));
 
         btnZoomIn.setOnClickListener(v -> mMap.animateCamera(CameraUpdateFactory.zoomIn()));
         btnZoomOut.setOnClickListener(v -> mMap.animateCamera(CameraUpdateFactory.zoomOut()));
@@ -121,14 +122,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             return false;
         });
 
-        List<String> names = new ArrayList<>();
-        for (ParkingSpot spot : allSpots) {
-            names.add(spot.address + (spot.isAvailable ? " ✅" : " ❌"));
-        }
-        ArrayAdapter<String> listAdapter = new ArrayAdapter<>(requireContext(),
-                android.R.layout.simple_list_item_1, names);
-        parkingList.setAdapter(listAdapter);
-
         parkingList.setOnItemClickListener((parent, view, position, id) -> {
             ParkingSpot selected = allSpots.get(position);
             LatLng loc = new LatLng(selected.lat, selected.lng);
@@ -147,20 +140,13 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
             if (matched != null) {
                 if (isAdmin) {
-                    // Αν είσαι admin, δείξε το admin bottom sheet για επεξεργασία!
-                    AdminSpotEditBottomSheet
-                            .newInstance(matched)
-                            .show(getParentFragmentManager(), "AdminSpotEditBottomSheet");
+                    AdminSpotEditBottomSheet.newInstance(matched).show(getParentFragmentManager(), "AdminSpotEditBottomSheet");
                 } else {
-                    // Κανονικός χρήστης
                     if (!matched.isAvailable) {
                         Toast.makeText(requireContext(), "Η θέση \"" + matched.name + "\" δεν είναι διαθέσιμη.", Toast.LENGTH_LONG).show();
                     } else {
                         SpotChoiceInfoBottomSheet bottomSheet = SpotChoiceInfoBottomSheet.newInstance(
-                                matched.address,
-                                matched.name,
-                                matched.pricePerHour
-                        );
+                                matched.address, matched.name, matched.pricePerHour);
                         bottomSheet.show(getParentFragmentManager(), "SpotChoiceInfoBottomSheet");
                     }
                 }
@@ -169,23 +155,44 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         });
     }
 
-    private List<ParkingSpot> createAllSpots() {
-        return Arrays.asList(
-                new ParkingSpot("Parking 1", 21.3060, -157.8570, true, "2€/ώρα", requireContext()),
-                new ParkingSpot("Parking 2", 21.3072, -157.8585, false, "2€/ώρα", requireContext()),
-                new ParkingSpot("Parking 3", 21.3081, -157.8591, true, "2€/ώρα", requireContext()),
-                new ParkingSpot("Parking 4", 21.3065, -157.8560, false, "2€/ώρα", requireContext()),
-                new ParkingSpot("Parking 5", 21.3078, -157.8602, true, "2€/ώρα", requireContext()),
-                new ParkingSpot("Parking 6", 21.3059, -157.8548, false, "2€/ώρα", requireContext()),
-                new ParkingSpot("Parking 7", 21.3092, -157.8579, true, "2€/ώρα", requireContext()),
-                new ParkingSpot("Parking 8", 21.3080, -157.8556, false, "2€/ώρα", requireContext()),
-                new ParkingSpot("Parking 9", 21.3067, -157.8537, true, "2€/ώρα", requireContext()),
-                new ParkingSpot("Parking 10", 21.3055, -157.8582, true, "2€/ώρα", requireContext())
-        );
+    private void fetchAllSpotsFromServer(Runnable callback) {
+        new Thread(() -> {
+            HttpHandler handler = new HttpHandler();
+            String response = handler.makeGetRequest("http://10.0.2.2/parking_app/get_all_spots.php");
+
+            if (response == null) return;
+
+            List<ParkingSpot> fetchedSpots = new ArrayList<>();
+            try {
+                JSONArray jsonArray = new JSONArray(response);
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    JSONObject obj = jsonArray.getJSONObject(i);
+                    ParkingSpot spot = new ParkingSpot(
+                            obj.getInt("id"),
+                            obj.getString("name"),
+                            obj.getDouble("lat"),
+                            obj.getDouble("lng"),
+                            obj.getInt("is_available") == 1,
+                            obj.getString("price_per_hour"),
+                            obj.getString("address")
+                    );
+                    fetchedSpots.add(spot);
+                }
+
+                requireActivity().runOnUiThread(() -> {
+                    allSpots = fetchedSpots;
+                    callback.run();
+                });
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }).start();
     }
 
     private void showAllParkingSpots(String filter) {
         mMap.clear();
+        List<String> names = new ArrayList<>();
         for (ParkingSpot spot : allSpots) {
             if (filter.equals("Όλες") ||
                     (filter.equals("Διαθέσιμες") && spot.isAvailable) ||
@@ -202,7 +209,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                         .icon(icon));
 
                 marker.setTag(spot);
+                names.add(spot.address + (spot.isAvailable ? " ✅" : " ❌"));
             }
         }
+
+        ArrayAdapter<String> listAdapter = new ArrayAdapter<>(requireContext(),
+                android.R.layout.simple_list_item_1, names);
+        parkingList.setAdapter(listAdapter);
     }
 }

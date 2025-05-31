@@ -18,5 +18,31 @@
         android:id="@+id/btnContinueAsAdmin"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Συνέχεια ως Διαχειριστής" />
+        android:text="Συνέχεια ως Διαχειριστής"
+        android:layout_marginBottom="16dp" />
+
+    <EditText
+        android:id="@+id/editAdminCode"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Εισαγωγή κωδικού διαχειριστή"
+        android:inputType="numberPassword"
+        android:visibility="gone"
+        android:layout_marginBottom="8dp"/>
+
+    <Button
+        android:id="@+id/btnEnterAdmin"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Είσοδος"
+        android:visibility="gone"
+        android:layout_marginBottom="8dp" />
+
+    <TextView
+        android:id="@+id/txtWrongCode"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Λάθος κωδικός διαχειριστή"
+        android:textColor="@android:color/holo_red_dark"
+        android:visibility="gone" />
 </LinearLayout>
