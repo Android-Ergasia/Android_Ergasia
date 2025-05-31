@@ -193,12 +193,21 @@ public class StopParkingFragment extends Fragment {
 
         payWithWallet.setOnClickListener(v -> {
             if (walletBalance >= totalCost) {
-                setWalletBalance(walletBalance - totalCost);
+                // Αποθήκευση email στο SharedPreferences ώστε να υπάρχει σε όλα τα σημεία
+                SharedPreferences prefsUser = requireContext().getSharedPreferences("UserPrefs", Context.MODE_PRIVATE);
+                prefsUser.edit().putString("user_email", email != null ? email : "").apply();
+
+                double newBalance = walletBalance - totalCost;
+                setWalletBalance(newBalance);
+                walletBalance = newBalance;
+
                 Toast.makeText(getContext(), "Πληρωμή με wallet ολοκληρώθηκε επιτυχώς!", Toast.LENGTH_LONG).show();
                 payWithCard.setEnabled(false);
                 payWithWallet.setEnabled(false);
+
                 sendParkingDataToServer();
                 sendUserDataToServer();
+
                 requireActivity().getSupportFragmentManager()
                         .popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
             } else {
@@ -245,14 +254,24 @@ public class StopParkingFragment extends Fragment {
             params.put("amount", totalCost);
 
             JSONObject jsonObject = new JSONObject(params);
+            System.out.println("📤 [DEBUG] Parking data: " + jsonObject);
 
             JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, url, jsonObject,
                     response -> System.out.println("✅ [WALLET] Parking saved: " + response.toString()),
-                    error -> error.printStackTrace());
+                    error -> {
+                        error.printStackTrace();
+                        if (error.networkResponse != null) {
+                            String responseBody = new String(error.networkResponse.data);
+                            System.out.println("❌ [WALLET] Parking error: " + responseBody);
+                        } else {
+                            System.out.println("❌ [WALLET] Unknown parking error.");
+                        }
+                    });
 
             Volley.newRequestQueue(requireContext()).add(request);
         } catch (Exception e) {
             e.printStackTrace();
+            System.out.println("❌ [WALLET] Exception during parking data send.");
         }
     }
 
@@ -261,22 +280,32 @@ public class StopParkingFragment extends Fragment {
             String url = "http://10.0.2.2/parking_app/save_user_data.php";
 
             Map<String, Object> params = new HashMap<>();
-            params.put("user_id", email);
+            params.put("user_id", email != null ? email : "");
             params.put("wallet_balance", walletBalance);
             params.put("total_spent", totalCost);
             params.put("total_park_time", 1);
-            params.put("last_sector", sector);
-            params.put("last_park_time", startTime);
+            params.put("last_sector", sector != null ? sector : "");
+            params.put("last_park_time", startTime != null ? startTime : "");
 
             JSONObject jsonObject = new JSONObject(params);
+            System.out.println("📤 [DEBUG] Sending user stats: " + jsonObject);
 
             JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, url, jsonObject,
                     response -> System.out.println("✅ [WALLET] User data saved: " + response.toString()),
-                    error -> error.printStackTrace());
+                    error -> {
+                        error.printStackTrace();
+                        if (error.networkResponse != null) {
+                            String responseBody = new String(error.networkResponse.data);
+                            System.out.println("❌ [WALLET] Server error: " + responseBody);
+                        } else {
+                            System.out.println("❌ [WALLET] Unknown network error");
+                        }
+                    });
 
             Volley.newRequestQueue(requireContext()).add(request);
         } catch (Exception e) {
             e.printStackTrace();
+            System.out.println("❌ [WALLET] Exception during user data send");
         }
     }
 }
