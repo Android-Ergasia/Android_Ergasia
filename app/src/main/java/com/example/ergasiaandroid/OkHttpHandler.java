@@ -50,26 +50,4 @@ public class OkHttpHandler {
         }
     }
 
-//    // Μέθοδος για την ανάκτηση των δεδομένων για τα Brands και τα Models
-//    ArrayList<CarBrand> populateDropDown(String url) throws Exception {
-//        ArrayList<CarBrand> cbList = new ArrayList<>();
-//        OkHttpClient client = new OkHttpClient().newBuilder().build();
-//        RequestBody body = RequestBody.create("", MediaType.parse("text/plain"));
-//        Request request = new Request.Builder().url(url).method("POST", body).build();
-//        Response response = client.newCall(request).execute();
-//        String data = response.body().string();
-//
-//        try {
-//            JSONObject json = new JSONObject(data);
-//            Iterator<String> keys = json.keys();
-//            while (keys.hasNext()) {
-//                String brand = keys.next();
-//                String models = json.get(brand).toString();
-//                cbList.add(new CarBrand(brand, models));
-//            }
-//        } catch (JSONException e) {
-//            e.printStackTrace();
-//        }
-//        return cbList;
-//    }
 }

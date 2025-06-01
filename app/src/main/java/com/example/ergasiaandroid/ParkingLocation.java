@@ -23,7 +23,7 @@ public class ParkingLocation {
         this.cost = cost;
     }
 
-    // ✅ Μετατροπή σε JSON για αποθήκευση
+    //  Μετατροπή σε JSON για αποθήκευση
     public JSONObject toJSON() {
         JSONObject obj = new JSONObject();
         try {
@@ -40,7 +40,7 @@ public class ParkingLocation {
         return obj;
     }
 
-    // ✅ Δημιουργία ParkingLocation από JSON για φόρτωση
+    // Δημιουργία ParkingLocation από JSON για φόρτωση
     public static ParkingLocation fromJSON(JSONObject obj) throws JSONException {
         return new ParkingLocation(
                 obj.getString("id"),

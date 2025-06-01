@@ -12,11 +12,13 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
 public class AdminSpotEditBottomSheet extends BottomSheetDialogFragment {
 
+    // Στατική μέθοδος για δημιουργία ενός νέου BottomSheet με στοιχεία της ParkingSpot
     public static AdminSpotEditBottomSheet newInstance(ParkingSpot spot) {
         AdminSpotEditBottomSheet sheet = new AdminSpotEditBottomSheet();
         Bundle args = new Bundle();
 
-        args.putInt("id", spot.id);                        // ✅ προσθήκη id
+        // Περνάμε όλα τα στοιχεία της spot μέσω Bundle
+        args.putInt("id", spot.id);
         args.putString("name", spot.name);
         args.putString("address", spot.address);
         args.putBoolean("available", spot.isAvailable);
@@ -31,14 +33,17 @@ public class AdminSpotEditBottomSheet extends BottomSheetDialogFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        // Γεμίζουμε το layout του BottomSheet
         View view = inflater.inflate(R.layout.bottom_sheet_admin_edit_spot, container, false);
 
+        // Συνδέουμε τα στοιχεία του layout με τις μεταβλητές
         TextView txtName = view.findViewById(R.id.spot_name);
         TextView txtAddress = view.findViewById(R.id.spot_address);
         TextView txtAvailable = view.findViewById(R.id.spot_available);
         TextView txtPrice = view.findViewById(R.id.spot_price);
         Button btnEdit = view.findViewById(R.id.btn_edit_spot);
 
+        // Παίρνουμε τα δεδομένα που περάστηκαν μέσω arguments
         Bundle args = getArguments();
         if (args != null) {
             txtName.setText(args.getString("name", ""));
@@ -47,19 +52,22 @@ public class AdminSpotEditBottomSheet extends BottomSheetDialogFragment {
             txtPrice.setText(args.getString("price", ""));
         }
 
+        // Όταν πατηθεί το κουμπί "Επεξεργασία"
         btnEdit.setOnClickListener(v -> {
             if (args == null) return;
 
+            // Δημιουργούμε νέο αντικείμενο ParkingSpot με τα δεδομένα του bundle
             ParkingSpot spot = new ParkingSpot(
-                    args.getInt("id", 0),                       // ✅ id (απαραίτητο)
-                    args.getString("name", ""),                // name
-                    args.getDouble("lat", 0),                  // lat
-                    args.getDouble("lng", 0),                  // lng
-                    args.getBoolean("available"),              // isAvailable
-                    args.getString("price", ""),               // price
-                    requireContext()                           // context για απόκτηση address
+                    args.getInt("id", 0),
+                    args.getString("name", ""),
+                    args.getDouble("lat", 0),
+                    args.getDouble("lng", 0),
+                    args.getBoolean("available"),
+                    args.getString("price", ""),
+                    requireContext()
             );
 
+            // Εκκίνηση του AdminPanelActivity για επεξεργασία της spot
             Intent intent = new Intent(requireContext(), AdminPanelActivity.class);
             intent.putExtra("spot", spot);
             startActivity(intent);
