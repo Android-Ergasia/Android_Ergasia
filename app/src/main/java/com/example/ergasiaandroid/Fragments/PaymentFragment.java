@@ -34,9 +34,11 @@ import java.util.Map;
 
 public class PaymentFragment extends Fragment {
 
+    // Μεταβλητές για να περαστούν από το προηγούμενο Fragment
     private String sector, address, startTime, plate, email, spotPriceStr;
     private double amount;
 
+    // Δημιουργεί νέο instance του fragment με δεδομένα πληρωμής
     public static PaymentFragment newInstance(String sector, String address, String startTime,
                                               String plate, String email, double amount, String spotPriceStr) {
         PaymentFragment fragment = new PaymentFragment();
@@ -63,6 +65,7 @@ public class PaymentFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        // Παίρνει τα ορίσματα που δόθηκαν μέσω newInstance
         if (getArguments() != null) {
             sector = getArguments().getString("sector");
             address = getArguments().getString("address");
@@ -73,6 +76,7 @@ public class PaymentFragment extends Fragment {
             spotPriceStr = getArguments().getString("spot_price");
         }
 
+        // Ρύθμιση toolbar
         if (getActivity() != null) {
             AppCompatActivity activity = (AppCompatActivity) getActivity();
             activity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -80,6 +84,7 @@ public class PaymentFragment extends Fragment {
             setHasOptionsMenu(true);
         }
 
+        // Αντιστοίχιση UI στοιχείων
         TextInputEditText cardNumber = view.findViewById(R.id.cardNumber);
         TextInputEditText expiryMonth = view.findViewById(R.id.expiryMonth);
         TextInputEditText expiryYear = view.findViewById(R.id.expiryYearEdit);
@@ -90,26 +95,29 @@ public class PaymentFragment extends Fragment {
         TextView paymentAmount = view.findViewById(R.id.paymentAmount);
         TextView parkingInfo = view.findViewById(R.id.parkingInfo);
 
+        // Προβολή ποσού πληρωμής
         String costText = String.format(Locale.getDefault(), "%.2f €", amount);
         paymentAmount.setText("Πληρωτέο Ποσό: " + costText);
 
+        // Εμφάνιση στοιχείων στάθμευσης
         StringBuilder info = new StringBuilder();
         info.append("Θέση: ").append(sector).append("\n")
                 .append("Διεύθυνση: ").append(address).append("\n")
                 .append("Ώρα έναρξης: ").append(startTime).append("\n")
                 .append("Πινακίδα: ").append(plate).append("\n")
                 .append("Email: ").append(email);
-
         parkingInfo.setText(info.toString());
 
+        // Αποθηκεύει το email σε SharedPreferences για μελλοντική χρήση
         SharedPreferences prefs = requireContext().getSharedPreferences("UserPrefs", Context.MODE_PRIVATE);
         prefs.edit().putString("user_email", email).apply();
 
+        // Όταν πατηθεί το κουμπί "Πληρωμή"
         payButton.setOnClickListener(v -> {
             if (validateCard(cardNumber, expiryMonth, expiryYear, cvv, cardHolder)) {
-                saveUserDataToDatabase();
-                saveParkingHistoryToDatabase();
-                updateWallet();
+                saveUserDataToDatabase();         // Αποθήκευση στοιχείων χρήστη
+                saveParkingHistoryToDatabase();   // Καταγραφή ιστορικού στάθμευσης
+                updateWallet();                   // Μείωση υπολοίπου χρήστη
 
                 Toast.makeText(getContext(), "Πληρωμή επιτυχής!", Toast.LENGTH_SHORT).show();
 
@@ -121,9 +129,11 @@ public class PaymentFragment extends Fragment {
             }
         });
 
+        // Ακύρωση πληρωμής → επιστροφή στο StopParkingFragment
         cancelButton.setOnClickListener(v -> goBackToStopFragment());
     }
 
+    // Έλεγχος αν έχουν συμπληρωθεί όλα τα στοιχεία της κάρτας
     private boolean validateCard(TextInputEditText cardNumber, TextInputEditText expiryMonth,
                                  TextInputEditText expiryYear, TextInputEditText cvv,
                                  TextInputEditText cardHolder) {
@@ -150,11 +160,11 @@ public class PaymentFragment extends Fragment {
         return true;
     }
 
+    // Αποθήκευση των στοιχείων του χρήστη στη βάση (μέσω PHP API)
     private void saveUserDataToDatabase() {
         String url = "http://10.0.2.2/parking_app/save_user_data.php";
 
         try {
-            // Αν κάποιο είναι null, μην στείλεις τίποτα
             if (email == null || sector == null || startTime == null) {
                 System.out.println("❌ Null πεδία στο saveUserDataToDatabase");
                 return;
@@ -162,15 +172,13 @@ public class PaymentFragment extends Fragment {
 
             Map<String, Object> params = new HashMap<>();
             params.put("user_id", email);
-            params.put("wallet_balance", 0.0);  // Αν θέλεις μπορείς να βάλεις πραγματικό υπόλοιπο
+            params.put("wallet_balance", 0.0);
             params.put("total_spent", amount);
-            params.put("total_park_time", 1);   // Ή υπολόγισε πραγματικά λεπτά/ώρες
+            params.put("total_park_time", 1);
             params.put("last_sector", sector);
-            params.put("last_park_time", startTime); // Φροντίζει να είναι σε μορφή "yyyy-MM-dd HH:mm:ss"
+            params.put("last_park_time", startTime);
 
             JSONObject jsonObject = new JSONObject(params);
-
-            System.out.println("📤 USER data payload: " + jsonObject.toString());  // DEBUG log
 
             JsonObjectRequest request = new JsonObjectRequest(
                     Request.Method.POST, url, jsonObject,
@@ -192,6 +200,7 @@ public class PaymentFragment extends Fragment {
         }
     }
 
+    // Αποθήκευση ιστορικού στάθμευσης
     private void saveParkingHistoryToDatabase() {
         String url = "http://10.0.2.2/parking_app/insert_parking_history.php";
 
@@ -207,8 +216,6 @@ public class PaymentFragment extends Fragment {
             params.put("amount", amount);
 
             JSONObject jsonObject = new JSONObject(params);
-
-            System.out.println("📤 Sending to DB: " + jsonObject.toString());
 
             JsonObjectRequest request = new JsonObjectRequest(
                     Request.Method.POST, url, jsonObject,
@@ -228,13 +235,15 @@ public class PaymentFragment extends Fragment {
         }
     }
 
+    // Μειώνει το υπόλοιπο στο πορτοφόλι του χρήστη
     private void updateWallet() {
         SharedPreferences prefs = requireContext().getSharedPreferences("WalletPrefs", Context.MODE_PRIVATE);
-        float currentBalance = prefs.getFloat("wallet_balance", 0);
+        float currentBalance = prefs.getFloat("wallet_balance", 0);  // ⚠️ χρησιμοποιείται float!
         float newBalance = (float) (currentBalance - amount);
-        prefs.edit().putFloat("wallet_balance", newBalance).apply();
+        prefs.edit().putFloat("wallet_balance", newBalance).apply();  // Ενημερώνει το υπόλοιπο
     }
 
+    // Επιστροφή στο StopParkingFragment με τα αρχικά δεδομένα
     private void goBackToStopFragment() {
         StopParkingFragment stopParkingFragment = StopParkingFragment.newInstance(
                 sector, address, startTime, plate, email, spotPriceStr, true, amount);
@@ -245,6 +254,7 @@ public class PaymentFragment extends Fragment {
                 .commit();
     }
 
+    // Όταν ο χρήστης πατήσει το "πίσω" κουμπί στο toolbar
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
@@ -254,4 +264,3 @@ public class PaymentFragment extends Fragment {
         return super.onOptionsItemSelected(item);
     }
 }
-
