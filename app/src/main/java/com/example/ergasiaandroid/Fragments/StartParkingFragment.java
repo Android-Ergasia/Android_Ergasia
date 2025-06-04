@@ -15,25 +15,27 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
+import com.example.ergasiaandroid.HttpHandler;
 import com.example.ergasiaandroid.R;
 import com.example.ergasiaandroid.SpotChoiceInfoBottomSheet;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+// ... (εισαγωγές όπως τις έχεις)
+
 public class StartParkingFragment extends Fragment {
 
-    // Δηλώσεις μεταβλητών για UI και στοιχεία θέσης
     private EditText editPlate, editEmail;
     private TextView textSector, textAddress, textStartTime;
     private String sector;
     private String address;
     private String price;
-
     private String currentTime;
 
-    // Μέθοδος δημιουργίας του Fragment με παραμέτρους
     public static StartParkingFragment newInstance(String sector, String address, String price) {
         StartParkingFragment fragment = new StartParkingFragment();
         Bundle args = new Bundle();
@@ -46,11 +48,10 @@ public class StartParkingFragment extends Fragment {
 
     public StartParkingFragment() {}
 
-    // Δημιουργεί το layout του fragment
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        setHasOptionsMenu(true);  // Δηλώνει ότι υπάρχει μενού (για back κουμπί)
+        setHasOptionsMenu(true);
         return inflater.inflate(R.layout.fragment_start_parking, container, false);
     }
 
@@ -58,7 +59,6 @@ public class StartParkingFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // Σύνδεση των στοιχείων UI με μεταβλητές
         editPlate = view.findViewById(R.id.edit_plate);
         editEmail = view.findViewById(R.id.edit_email);
         textSector = view.findViewById(R.id.text_sector);
@@ -66,10 +66,8 @@ public class StartParkingFragment extends Fragment {
         textStartTime = view.findViewById(R.id.text_start_time);
         Button startButton = view.findViewById(R.id.button_start);
 
-        // Εστίαση στο πεδίο πινακίδας
         editPlate.requestFocus();
 
-        // Ορισμός τίτλου action bar και ενεργοποίηση back κουμπιού
         if (getActivity() != null) {
             AppCompatActivity activity = (AppCompatActivity) getActivity();
             if (activity.getSupportActionBar() != null) {
@@ -78,53 +76,47 @@ public class StartParkingFragment extends Fragment {
             }
         }
 
-        // Ανάγνωση παραμέτρων που πέρασαν στο fragment
         if (getArguments() != null) {
             sector = getArguments().getString("spot_number", "Άγνωστο");
             address = getArguments().getString("spot_address", "Άγνωστη διεύθυνση");
             price = getArguments().getString("spot_price", "1.5");
         }
 
-        // Υπολογισμός και αποθήκευση της τρέχουσας ώρας (μία φορά)
         currentTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date());
 
-        // Εμφάνιση τιμών στα TextViews
         textSector.setText("Θέση: " + sector);
         textAddress.setText("Διεύθυνση: " + address);
         textStartTime.setText("Ώρα έναρξης: " + currentTime);
 
-        // Ενέργεια όταν ο χρήστης πατήσει το κουμπί "Έναρξη"
         startButton.setOnClickListener(v -> {
             String plate = editPlate.getText().toString().trim();
             String email = editEmail.getText().toString().trim();
 
-            // Έλεγχος εγκυρότητας email
             if (!isValidEmail(email)) {
                 Toast.makeText(getContext(), "Παρακαλώ εισάγετε έγκυρο email.", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            // Έλεγχος αν έχει εισαχθεί πινακίδα
             if (plate.isEmpty()) {
                 Toast.makeText(getContext(), "Παρακαλώ εισάγετε πινακίδα οχήματος.", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            // Απόκρυψη πληκτρολογίου
             InputMethodManager imm = (InputMethodManager) requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
 
-            // Μετατροπή της τιμής σε αριθμητική μορφή (π.χ. 1,5 → 1.5)
             String priceNumeric = price.replaceAll(",", ".").replaceAll("[^0-9.]", "");
             if (priceNumeric.isEmpty()) priceNumeric = "1.5";
             if (priceNumeric.endsWith(".")) priceNumeric = priceNumeric.substring(0, priceNumeric.length() - 1);
 
-            // Μετάβαση στο StopParkingFragment με τα στοιχεία
+            // Ενημέρωση της βάσης: η θέση γίνεται μη διαθέσιμη
+            setSpotUnavailable(sector);
+
+            // Μετάβαση στο StopParkingFragment
             StopParkingFragment stopFragment = StopParkingFragment.newInstance(
                     sector, address, currentTime, plate, email, priceNumeric, false, null
             );
 
-            // Εναλλαγή των fragments στην οθόνη
             getParentFragmentManager()
                     .beginTransaction()
                     .replace(R.id.fragment_container, stopFragment)
@@ -133,22 +125,40 @@ public class StartParkingFragment extends Fragment {
         });
     }
 
-    // Έλεγχος εγκυρότητας email
     private boolean isValidEmail(String email) {
         return Patterns.EMAIL_ADDRESS.matcher(email).matches();
     }
 
-    // Ενέργεια όταν ο χρήστης πατήσει το back κουμπί στο action bar
+    private void setSpotUnavailable(String spotName) {
+        new Thread(() -> {
+            try {
+                String url = "http://10.0.2.2/parking_app/update_availability.php";
+                String postData = "spot_name=" + URLEncoder.encode(spotName, StandardCharsets.UTF_8.name());
+
+                String response = HttpHandler.post(url, postData);
+                if (response != null && response.contains("success")) {
+                    requireActivity().runOnUiThread(() ->
+                            Toast.makeText(getContext(), "Η θέση έγινε μη διαθέσιμη.", Toast.LENGTH_SHORT).show()
+                    );
+                } else {
+                    requireActivity().runOnUiThread(() ->
+                            Toast.makeText(getContext(), "Σφάλμα ενημέρωσης θέσης στη βάση.", Toast.LENGTH_SHORT).show()
+                    );
+                }
+            } catch (Exception e) {
+                requireActivity().runOnUiThread(() ->
+                        Toast.makeText(getContext(), "Σφάλμα σύνδεσης: " + e.getMessage(), Toast.LENGTH_SHORT).show()
+                );
+            }
+        }).start();
+    }
+
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
             if (getActivity() != null) {
-
-                // Επιστροφή στο spot info bottom sheet με τις πληροφορίες θέσης
                 SpotChoiceInfoBottomSheet bottomSheet = SpotChoiceInfoBottomSheet.newInstance(address, sector, price);
                 bottomSheet.show(getParentFragmentManager(), "spot_choice_info");
-
-                // Αφαίρεση του fragment από το backstack
                 getParentFragmentManager().popBackStack();
             }
             return true;

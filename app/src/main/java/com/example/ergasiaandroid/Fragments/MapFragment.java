@@ -77,16 +77,23 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         btnZoomIn = view.findViewById(R.id.btnZoomIn);
         btnZoomOut = view.findViewById(R.id.btnZoomOut);
 
+
+
         return view;
     }
 
     // Εκτελείται κάθε φορά που επιστρέφουμε σε αυτό το Fragment
+
     @Override
     public void onResume() {
         super.onResume();
 
-        // Παίρνουμε όλα τα σημεία στάθμευσης από τον server
-        fetchAllSpotsFromServer(() -> showAllParkingSpots("Όλες"));
+        // Φέρνουμε ξανά τις θέσεις και εφαρμόζουμε το τρέχον φίλτρο από το Spinner
+        String currentFilter = (filterSpinner != null && filterSpinner.getSelectedItem() != null)
+                ? filterSpinner.getSelectedItem().toString()
+                : "Όλες";
+
+        fetchAllSpotsFromServer(() -> showAllParkingSpots(currentFilter));
 
         // Τίτλος στο action bar
         if (getActivity() != null) {
@@ -97,6 +104,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             }
         }
     }
+
 
     // Όταν είναι έτοιμος ο χάρτης, εκτελείται ο παρακάτω κώδικας
     @Override
@@ -245,36 +253,37 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     // Προβολή θέσεων στο χάρτη και τη λίστα, με βάση φίλτρο
     private void showAllParkingSpots(String filter) {
-        // Καθαρίζουμε προηγούμενα markers
         mMap.clear();
-
         List<String> names = new ArrayList<>();
+
         for (ParkingSpot spot : allSpots) {
             if (filter.equals("Όλες") ||
                     (filter.equals("Διαθέσιμες") && spot.isAvailable) ||
                     (filter.equals("Κατειλημμένες") && !spot.isAvailable)) {
 
                 // Επιλογή εικονιδίου με βάση διαθεσιμότητα
-                Bitmap iconBitmap = BitmapFactory.decodeResource(getResources(),
-                        spot.isAvailable ? R.drawable.marker_green : R.drawable.marker_red);
+                // >>> ΜΠΛΕ για διαθέσιμη, ΚΟΚΚΙΝΟ για μη διαθέσιμη <<<
+                int drawableRes = spot.isAvailable
+                        ? R.drawable.marker_green
+                        : R.drawable.marker_red;
+
+                Bitmap iconBitmap = BitmapFactory.decodeResource(getResources(), drawableRes);
                 Bitmap scaled = Bitmap.createScaledBitmap(iconBitmap, 100, 150, false);
                 BitmapDescriptor icon = BitmapDescriptorFactory.fromBitmap(scaled);
 
-                // Προσθήκη marker στο χάρτη
                 Marker marker = mMap.addMarker(new MarkerOptions()
                         .position(new LatLng(spot.lat, spot.lng))
                         .title(spot.name + (spot.isAvailable ? " - Διαθέσιμο" : " - Κατειλημμένο"))
                         .icon(icon));
 
                 marker.setTag(spot);
-
                 names.add(spot.address + (spot.isAvailable ? " ✅" : " ❌"));
             }
         }
 
-        // Ενημέρωση του ListView
         ArrayAdapter<String> listAdapter = new ArrayAdapter<>(requireContext(),
                 android.R.layout.simple_list_item_1, names);
         parkingList.setAdapter(listAdapter);
     }
+
 }

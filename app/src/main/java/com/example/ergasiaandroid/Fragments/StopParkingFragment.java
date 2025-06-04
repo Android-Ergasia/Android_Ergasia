@@ -17,6 +17,7 @@ import androidx.fragment.app.FragmentManager;
 import com.android.volley.Request;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.example.ergasiaandroid.HttpHandler;
 import com.example.ergasiaandroid.R;
 
 import org.json.JSONObject;
@@ -90,7 +91,7 @@ public class StopParkingFragment extends Fragment {
             }
         }
 
-        //Δείχνει το back button στο toolbar μόνο όταν ο χρήστης είναι στη φάση πληρωμής
+        // Δείχνει το back button στο toolbar μόνο όταν ο χρήστης είναι στη φάση πληρωμής
         AppCompatActivity activity = (AppCompatActivity) requireActivity();
         if (activity.getSupportActionBar() != null) {
             activity.getSupportActionBar().setDisplayHomeAsUpEnabled(isPaymentPhase);
@@ -228,6 +229,9 @@ public class StopParkingFragment extends Fragment {
                 sendParkingDataToServer();
                 sendUserDataToServer();
 
+                // Κάνουμε ξανά τη θέση διαθέσιμη
+                setSpotAvailable(sector);
+
                 // Καθαρισμός του back stack
                 requireActivity().getSupportFragmentManager()
                         .popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
@@ -333,5 +337,31 @@ public class StopParkingFragment extends Fragment {
             e.printStackTrace();
             System.out.println("❌ [WALLET] Exception during user data send");
         }
+    }
+
+    // Μέθοδος που καλεί το PHP για να κάνει ξανά διαθέσιμη τη θέση
+    private void setSpotAvailable(String spotName) {
+        new Thread(() -> {
+            try {
+                String url = "http://10.0.2.2/parking_app/make_available.php";
+                String postData = "spot_name=" + java.net.URLEncoder.encode(spotName, "UTF-8");
+
+                String response = HttpHandler.post(url, postData);
+
+                if (response != null && response.contains("success")) {
+                    requireActivity().runOnUiThread(() ->
+                            Toast.makeText(getContext(), "Η θέση \"" + spotName + "\" είναι ξανά διαθέσιμη.", Toast.LENGTH_SHORT).show()
+                    );
+                } else {
+                    requireActivity().runOnUiThread(() ->
+                            Toast.makeText(getContext(), "⚠️ Αποτυχία ενημέρωσης διαθεσιμότητας.", Toast.LENGTH_SHORT).show()
+                    );
+                }
+            } catch (Exception e) {
+                requireActivity().runOnUiThread(() ->
+                        Toast.makeText(getContext(), "⚠️ Εξαίρεση: " + e.getMessage(), Toast.LENGTH_SHORT).show()
+                );
+            }
+        }).start();
     }
 }

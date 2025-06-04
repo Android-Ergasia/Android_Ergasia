@@ -46,6 +46,41 @@ public class HttpHandler {
         }
     }
 
+    public static String post(String urlString, String postData) {
+        HttpURLConnection conn = null;
+        BufferedReader reader = null;
+
+        try {
+            URL url = new URL(urlString);
+            conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("POST");
+            conn.setDoOutput(true);
+            conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+
+            try (OutputStream os = conn.getOutputStream()) {
+                byte[] input = postData.getBytes("UTF-8");
+                os.write(input, 0, input.length);
+            }
+
+            InputStream is = conn.getInputStream();
+            reader = new BufferedReader(new InputStreamReader(is));
+            StringBuilder response = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null)
+                response.append(line);
+
+            return response.toString();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        } finally {
+            if (conn != null) conn.disconnect();
+            try { if (reader != null) reader.close(); } catch (IOException ignored) {}
+        }
+    }
+
+
     public String makeGetRequest(String urlString) {
         StringBuilder result = new StringBuilder();
         HttpURLConnection urlConnection = null;

@@ -4,9 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -22,11 +20,14 @@ import com.android.volley.Request;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.ergasiaandroid.R;
+import com.example.ergasiaandroid.HttpHandler;
 import com.google.android.material.textfield.TextInputEditText;
 
 import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
@@ -37,6 +38,11 @@ public class PaymentFragment extends Fragment {
     // Μεταβλητές για να περαστούν από το προηγούμενο Fragment
     private String sector, address, startTime, plate, email, spotPriceStr;
     private double amount;
+
+    // TextInputEditText για πεδία κάρτας
+    private TextInputEditText cardNumber, expiryMonth, expiryYear, cvv, cardHolder;
+    private Button payButton;
+    private TextView paymentAmount, parkingInfo;
 
     // Δημιουργεί νέο instance του fragment με δεδομένα πληρωμής
     public static PaymentFragment newInstance(String sector, String address, String startTime,
@@ -85,15 +91,14 @@ public class PaymentFragment extends Fragment {
         }
 
         // Αντιστοίχιση UI στοιχείων
-        TextInputEditText cardNumber = view.findViewById(R.id.cardNumber);
-        TextInputEditText expiryMonth = view.findViewById(R.id.expiryMonth);
-        TextInputEditText expiryYear = view.findViewById(R.id.expiryYearEdit);
-        TextInputEditText cvv = view.findViewById(R.id.cvv);
-        TextInputEditText cardHolder = view.findViewById(R.id.cardHolder);
-        Button payButton = view.findViewById(R.id.payButton);
-        Button cancelButton = view.findViewById(R.id.cancelButton);
-        TextView paymentAmount = view.findViewById(R.id.paymentAmount);
-        TextView parkingInfo = view.findViewById(R.id.parkingInfo);
+        cardNumber   = view.findViewById(R.id.cardNumber);
+        expiryMonth  = view.findViewById(R.id.expiryMonth);
+        expiryYear   = view.findViewById(R.id.expiryYearEdit);
+        cvv          = view.findViewById(R.id.cvv);
+        cardHolder   = view.findViewById(R.id.cardHolder);
+        payButton    = view.findViewById(R.id.payButton);
+        paymentAmount= view.findViewById(R.id.paymentAmount);
+        parkingInfo  = view.findViewById(R.id.parkingInfo);
 
         // Προβολή ποσού πληρωμής
         String costText = String.format(Locale.getDefault(), "%.2f €", amount);
@@ -114,29 +119,34 @@ public class PaymentFragment extends Fragment {
 
         // Όταν πατηθεί το κουμπί "Πληρωμή"
         payButton.setOnClickListener(v -> {
-            if (validateCard(cardNumber, expiryMonth, expiryYear, cvv, cardHolder)) {
-                saveUserDataToDatabase();         // Αποθήκευση στοιχείων χρήστη
-                saveParkingHistoryToDatabase();   // Καταγραφή ιστορικού στάθμευσης
-                updateWallet();                   // Μείωση υπολοίπου χρήστη
-
-                Toast.makeText(getContext(), "Πληρωμή επιτυχής!", Toast.LENGTH_SHORT).show();
-
-                // Επιστροφή στον χάρτη
-                requireActivity().getSupportFragmentManager()
-                        .beginTransaction()
-                        .replace(R.id.fragment_container, new MapFragment())
-                        .commit();
+            // Ελέγχουμε αν όλα τα πεδία κάρτας είναι σωστά
+            if (!validateCardFields()) {
+                return;
             }
-        });
 
-        // Ακύρωση πληρωμής → επιστροφή στο StopParkingFragment
-        cancelButton.setOnClickListener(v -> goBackToStopFragment());
+            // 1) Αποθήκευση στοιχείων κάρτας στη βάση
+            saveCardDataToDatabase();
+
+            // 2) Αποθήκευση στοιχείων χρήστη & ιστορικού στάθμευσης & μείωση wallet
+            saveUserDataToDatabase();
+            saveParkingHistoryToDatabase();
+            updateWallet();
+
+            // 3) Κάνουμε ξανά διαθέσιμη τη θέση
+            setSpotAvailable(sector);
+
+            Toast.makeText(getContext(), "Πληρωμή επιτυχής!", Toast.LENGTH_SHORT).show();
+
+            // Επιστροφή στον χάρτη
+            requireActivity().getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.fragment_container, new MapFragment())
+                    .commit();
+        });
     }
 
-    // Έλεγχος αν έχουν συμπληρωθεί όλα τα στοιχεία της κάρτας
-    private boolean validateCard(TextInputEditText cardNumber, TextInputEditText expiryMonth,
-                                 TextInputEditText expiryYear, TextInputEditText cvv,
-                                 TextInputEditText cardHolder) {
+    // Έλεγχος εγκυρότητας πεδίων κάρτας
+    private boolean validateCardFields() {
         if (TextUtils.isEmpty(cardNumber.getText())) {
             cardNumber.setError("Απαιτείται αριθμός κάρτας");
             return false;
@@ -160,7 +170,43 @@ public class PaymentFragment extends Fragment {
         return true;
     }
 
-    // Αποθήκευση των στοιχείων του χρήστη στη βάση (μέσω PHP API)
+    // 1) Αποθήκευση στοιχείων κάρτας στη βάση
+    private void saveCardDataToDatabase() {
+        String url = "http://10.0.2.2/parking_app/save_card_data.php";
+
+        try {
+            Map<String, Object> params = new HashMap<>();
+            params.put("user_id",    email != null ? email : "");
+            params.put("card_number",cardNumber.getText().toString().trim());
+            params.put("expiry_month",expiryMonth.getText().toString().trim());
+            params.put("expiry_year", expiryYear.getText().toString().trim());
+            params.put("cvv",         cvv.getText().toString().trim());
+            params.put("card_holder", cardHolder.getText().toString().trim());
+
+            JSONObject jsonObject = new JSONObject(params);
+
+            JsonObjectRequest request = new JsonObjectRequest(
+                    Request.Method.POST, url, jsonObject,
+                    response -> {
+                        // Επιτυχία αποθήκευσης κάρτας
+                        System.out.println("✅ Card saved: " + response.toString());
+                    },
+                    error -> {
+                        error.printStackTrace();
+                        if (error.networkResponse != null) {
+                            String body = new String(error.networkResponse.data);
+                            System.out.println("⚠️ CARD save error: " + body);
+                        }
+                        Toast.makeText(getContext(), "❌ Σφάλμα αποθήκευσης κάρτας", Toast.LENGTH_SHORT).show();
+                    });
+
+            Volley.newRequestQueue(requireContext()).add(request);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    // 2α) Αποθήκευση των στοιχείων του χρήστη στη βάση (μέσω PHP API)
     private void saveUserDataToDatabase() {
         String url = "http://10.0.2.2/parking_app/save_user_data.php";
 
@@ -171,7 +217,7 @@ public class PaymentFragment extends Fragment {
             }
 
             Map<String, Object> params = new HashMap<>();
-            params.put("user_id", email);
+            params.put("user_id",     email);
             params.put("wallet_balance", 0.0);
             params.put("total_spent", amount);
             params.put("total_park_time", 1);
@@ -182,9 +228,7 @@ public class PaymentFragment extends Fragment {
 
             JsonObjectRequest request = new JsonObjectRequest(
                     Request.Method.POST, url, jsonObject,
-                    response -> {
-                        System.out.println("✅ User data saved: " + response.toString());
-                    },
+                    response -> System.out.println("✅ User data saved: " + response.toString()),
                     error -> {
                         error.printStackTrace();
                         if (error.networkResponse != null) {
@@ -200,7 +244,7 @@ public class PaymentFragment extends Fragment {
         }
     }
 
-    // Αποθήκευση ιστορικού στάθμευσης
+    // 2β) Αποθήκευση ιστορικού στάθμευσης
     private void saveParkingHistoryToDatabase() {
         String url = "http://10.0.2.2/parking_app/insert_parking_history.php";
 
@@ -224,7 +268,7 @@ public class PaymentFragment extends Fragment {
                         error.printStackTrace();
                         if (error.networkResponse != null) {
                             String responseBody = new String(error.networkResponse.data);
-                            System.out.println("⚠️ Server error response: " + responseBody);
+                            System.out.println("⚠️ Parking history error: " + responseBody);
                         }
                         Toast.makeText(getContext(), "❌ Σφάλμα ιστορικού στάθμευσης", Toast.LENGTH_SHORT).show();
                     });
@@ -235,32 +279,37 @@ public class PaymentFragment extends Fragment {
         }
     }
 
-    // Μειώνει το υπόλοιπο στο πορτοφόλι του χρήστη
+    // 2γ) Μειώνει το υπόλοιπο στο πορτοφόλι του χρήστη
     private void updateWallet() {
         SharedPreferences prefs = requireContext().getSharedPreferences("WalletPrefs", Context.MODE_PRIVATE);
-        float currentBalance = prefs.getFloat("wallet_balance", 0);  // ⚠️ χρησιμοποιείται float!
+        float currentBalance = prefs.getFloat("wallet_balance", 0);
         float newBalance = (float) (currentBalance - amount);
-        prefs.edit().putFloat("wallet_balance", newBalance).apply();  // Ενημερώνει το υπόλοιπο
+        prefs.edit().putFloat("wallet_balance", newBalance).apply();
     }
 
-    // Επιστροφή στο StopParkingFragment με τα αρχικά δεδομένα
-    private void goBackToStopFragment() {
-        StopParkingFragment stopParkingFragment = StopParkingFragment.newInstance(
-                sector, address, startTime, plate, email, spotPriceStr, true, amount);
+    // 3) Μέθοδος που καλεί το PHP για να κάνει ξανά διαθέσιμη τη θέση
+    private void setSpotAvailable(String spotName) {
+        new Thread(() -> {
+            try {
+                String url = "http://10.0.2.2/parking_app/make_available.php";
+                String postData = "spot_name=" + java.net.URLEncoder.encode(spotName, "UTF-8");
 
-        requireActivity().getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.fragment_container, stopParkingFragment)
-                .commit();
-    }
+                String response = HttpHandler.post(url, postData);
 
-    // Όταν ο χρήστης πατήσει το "πίσω" κουμπί στο toolbar
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            goBackToStopFragment();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
+                if (response != null && response.contains("success")) {
+                    requireActivity().runOnUiThread(() ->
+                            Toast.makeText(getContext(), "Η θέση \"" + spotName + "\" είναι ξανά διαθέσιμη.", Toast.LENGTH_SHORT).show()
+                    );
+                } else {
+                    requireActivity().runOnUiThread(() ->
+                            Toast.makeText(getContext(), "⚠️ Αποτυχία ενημέρωσης διαθεσιμότητας.", Toast.LENGTH_SHORT).show()
+                    );
+                }
+            } catch (Exception e) {
+                requireActivity().runOnUiThread(() ->
+                        Toast.makeText(getContext(), "⚠️ Εξαίρεση: " + e.getMessage(), Toast.LENGTH_SHORT).show()
+                );
+            }
+        }).start();
     }
 }
