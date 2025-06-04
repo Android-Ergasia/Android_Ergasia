@@ -1,48 +1,93 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/rootLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:gravity="center"
-    android:padding="24dp"
-    android:background="@android:color/white">
+    android:background="#FAFAFA">
 
-    <Button
-        android:id="@+id/btnContinueAsUser"
+    <!-- ScrollView για login -->
+    <ScrollView
+        android:id="@+id/loginScroll"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Συνέχεια ως Χρήστης"
-        android:layout_marginBottom="16dp" />
+        android:layout_height="match_parent"
+        android:padding="24dp">
 
-    <Button
-        android:id="@+id/btnContinueAsAdmin"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Συνέχεια ως Διαχειριστής"
-        android:layout_marginBottom="16dp" />
+        <LinearLayout
+            android:id="@+id/loginLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center_horizontal">
 
-    <EditText
-        android:id="@+id/editAdminCode"
+            <TextView
+                android:id="@+id/titleText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Σύνδεση"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="32dp"
+                android:textColor="#000000" />
+
+            <EditText
+                android:id="@+id/editEmail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Email"
+                android:inputType="textEmailAddress"
+                android:background="@android:drawable/edit_text"
+                android:padding="12dp"
+                android:layout_marginBottom="16dp" />
+
+            <EditText
+                android:id="@+id/editPassword"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Κωδικός"
+                android:inputType="textPassword"
+                android:background="@android:drawable/edit_text"
+                android:padding="12dp"
+                android:layout_marginBottom="16dp" />
+
+            <Button
+                android:id="@+id/btnLogin"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Σύνδεση"
+                android:backgroundTint="#2196F3"
+                android:textColor="#FFFFFF"
+                android:textStyle="bold"
+                android:padding="12dp"
+                android:layout_marginBottom="16dp" />
+
+            <TextView
+                android:id="@+id/txtError"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Λάθος στοιχεία"
+                android:textColor="@android:color/holo_red_dark"
+                android:textSize="14sp"
+                android:gravity="center"
+                android:visibility="gone"
+                android:layout_marginTop="8dp" />
+
+            <TextView
+                android:id="@+id/txtGoToRegister"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Δεν έχεις λογαριασμό; Εγγραφή"
+                android:textColor="#2196F3"
+                android:textSize="14sp"
+                android:layout_marginTop="24dp"
+                android:textStyle="bold" />
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- Προσθέτουμε frame για να φορτώνεται το RegisterFragment εδώ -->
+    <FrameLayout
+        android:id="@+id/fragment_container"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Εισαγωγή κωδικού διαχειριστή"
-        android:inputType="numberPassword"
+        android:layout_height="match_parent"
         android:visibility="gone"
-        android:layout_marginBottom="8dp"/>
-
-    <Button
-        android:id="@+id/btnEnterAdmin"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Είσοδος"
-        android:visibility="gone"
-        android:layout_marginBottom="8dp" />
-
-    <TextView
-        android:id="@+id/txtWrongCode"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Λάθος κωδικός διαχειριστή"
-        android:textColor="@android:color/holo_red_dark"
-        android:visibility="gone" />
-</LinearLayout>
+        android:background="#FFFFFF"/>
+</RelativeLayout>
