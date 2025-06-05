@@ -27,20 +27,16 @@ import java.util.Map;
 
 public class PaymentFragment2 extends Fragment {
 
-    // Ποσό προς προσθήκη στο υπόλοιπο
     private int amount;
-
-    // TextInputEditText πεδίων κάρτας
     private TextInputEditText cardNumber, expiryMonth, expiryYear, cardCvv, cardHolder;
     private Button payButton;
 
     public PaymentFragment2() {}
 
-    // Δημιουργία της διεπαφής του fragment
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        setHasOptionsMenu(true); // Ενεργοποίηση του μενού για υποστήριξη κουμπιού back
+        setHasOptionsMenu(true);
         return inflater.inflate(R.layout.fragment_payment2, container, false);
     }
 
@@ -48,7 +44,6 @@ public class PaymentFragment2 extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // Ανάκτηση των πεδίων εισόδου και του κουμπιού πληρωμής από το layout
         cardNumber   = view.findViewById(R.id.card_number);
         expiryMonth  = view.findViewById(R.id.expiryMonth);
         expiryYear   = view.findViewById(R.id.expiryYearEdit);
@@ -56,42 +51,32 @@ public class PaymentFragment2 extends Fragment {
         cardHolder   = view.findViewById(R.id.cardHolder);
         payButton    = view.findViewById(R.id.pay_button);
 
-        // Λήψη του ποσού από τα arguments του fragment
         if (getArguments() != null) {
             amount = getArguments().getInt("amount", 0);
             String text = String.format("Ποσό: %.2f €", (float) amount);
             ((TextView) view.findViewById(R.id.amount_to_pay)).setText(text);
         }
 
-        // Ρύθμιση του ActionBar με τίτλο και back button
-        if (getActivity() != null) {
-            AppCompatActivity activity = (AppCompatActivity) getActivity();
-            if (activity.getSupportActionBar() != null) {
-                activity.getSupportActionBar().setTitle("Κατάθεση Ποσού");
-                activity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            }
+        AppCompatActivity activity = (AppCompatActivity) getActivity();
+        if (activity != null && activity.getSupportActionBar() != null) {
+            activity.getSupportActionBar().setTitle("Κατάθεση Ποσού");
+            activity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
-        // Ενέργεια στο πάτημα του κουμπιού πληρωμής
         payButton.setOnClickListener(v -> {
-            // Έλεγχος εγκυρότητας των πεδίων
             if (!validate(cardNumber, expiryMonth, expiryYear, cardCvv, cardHolder)) return;
 
-            // Αποθήκευση του νέου υπολοίπου
-            saveNewBalance(amount);
-
-            // Αποθήκευση στοιχείων κάρτας στη βάση
-            saveCardDataToDatabase();
-
-            // Εμφάνιση μηνύματος επιτυχίας
-            Toast.makeText(getActivity(), "Το ποσό προστέθηκε στο υπόλοιπο!", Toast.LENGTH_SHORT).show();
-
-            // Επιστροφή στο προηγούμενο fragment
-            requireActivity().getSupportFragmentManager().popBackStack();
+            boolean success = saveNewBalance(amount);
+            if (success) {
+                saveCardDataToDatabase();
+                Toast.makeText(getActivity(), "✅ Το ποσό προστέθηκε στο υπόλοιπο!", Toast.LENGTH_SHORT).show();
+                requireActivity().getSupportFragmentManager().popBackStack();
+            } else {
+                Toast.makeText(getActivity(), "❌ Σφάλμα: δεν εντοπίστηκε χρήστης!", Toast.LENGTH_SHORT).show();
+            }
         });
     }
 
-    // Έλεγχος εγκυρότητας των στοιχείων κάρτας
     private boolean validate(TextInputEditText cardNumber, TextInputEditText expiryMonth,
                              TextInputEditText expiryYear, TextInputEditText cardCvv,
                              TextInputEditText cardHolder) {
@@ -118,19 +103,24 @@ public class PaymentFragment2 extends Fragment {
         return true;
     }
 
-    // Ενημέρωση του υπολοίπου πορτοφολιού
-    private void saveNewBalance(int addedAmount) {
-        SharedPreferences prefs = requireActivity().getSharedPreferences("wallet_prefs", Context.MODE_PRIVATE);
+    private boolean saveNewBalance(int addedAmount) {
+        SharedPreferences prefsUser = requireActivity().getSharedPreferences("UserPrefs", Context.MODE_PRIVATE);
+        String email = prefsUser.getString("user_email", "");
+
+        if (email == null || email.isEmpty()) {
+            return false;
+        }
+
+        SharedPreferences prefs = requireActivity().getSharedPreferences("wallet_prefs_" + email, Context.MODE_PRIVATE);
         float currentBalance = prefs.getFloat("balance", 0f);
         prefs.edit().putFloat("balance", currentBalance + addedAmount).apply();
+        return true;
     }
 
-    // Αποθήκευση στοιχείων κάρτας στη βάση μέσω PHP
     private void saveCardDataToDatabase() {
         String url = "http://10.0.2.2/parking_app/save_card_data.php";
 
         try {
-            // Διαβάζουμε το email του χρήστη από τα UserPrefs
             SharedPreferences prefsUser = requireContext().getSharedPreferences("UserPrefs", Context.MODE_PRIVATE);
             String userEmail = prefsUser.getString("user_email", "");
 
@@ -162,7 +152,6 @@ public class PaymentFragment2 extends Fragment {
         }
     }
 
-    // Διαχείριση του πατήματος του back κουμπιού στο ActionBar
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
